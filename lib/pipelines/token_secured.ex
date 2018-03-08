@@ -1,4 +1,4 @@
-defmodule BtrzAuth.TokenSecuredPipeline do
+defmodule BtrzAuth.Pipelines.TokenSecured do
   use Guardian.Plug.Pipeline, otp_app: :btrz_auth
 
   plug Guardian.Plug.VerifyHeader
