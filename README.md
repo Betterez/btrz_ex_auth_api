@@ -1,1 +1,21 @@
-# btrz_ex_auth_api
+# BtrzAuth
+
+Elixir package for authentication handling using Plug and Guardian.
+
+## Installation
+
+If [available in Hex](https://hex.pm/docs/publish), the package can be installed
+by adding `btrz_auth` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:btrz_auth, "~> 0.1.0"}
+  ]
+end
+```
+
+Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
+and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
+be found at [https://hexdocs.pm/btrz_auth](https://hexdocs.pm/btrz_auth).
+
