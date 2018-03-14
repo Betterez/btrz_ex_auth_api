@@ -1,4 +1,4 @@
-defmodule BtrzAuthTest.GuardianInternalTest do
+defmodule BtrzAuth.GuardianInternalTest do
   use ExUnit.Case
 
   alias BtrzAuth.GuardianInternal

@@ -10,6 +10,6 @@ defmodule BtrzAuth.GuardianInternal do
 
   def resource_from_claims(claims) do
     resource = claims["sub"]
-    {:ok,  resource}
+    {:ok, resource}
   end
 end

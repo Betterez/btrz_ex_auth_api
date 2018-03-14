@@ -4,19 +4,12 @@ defmodule BtrzAuth do
   """
 
   @doc """
-  Hello world.
+  Generates an internal token using the configuration main or secondary secret keys.
 
-  ## Examples
-
-      iex> BtrzAuth.hello
-      :world
-
+  It will return a token using the issuer passed by configuration and `%{}` claims.
   """
-  def hello do
-    :world
-  end
-
+  @spec internal_auth_token() :: {:ok, Guardian.Token.token, Guardian.Token.claims} | {:error, any}
   def internal_auth_token() do
-    
+    BtrzAuth.Providers.InternalAuth.get_token()
   end
 end
