@@ -35,7 +35,7 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
   setup do
     impl = __MODULE__.Impl
     handler = __MODULE__.Handler
-    secret = Application.get_env(:btrz_auth, :main_secret)
+    secret = Application.get_env(:btrz_auth, :token)[:main_secret]
     {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, [secret: secret])
     {:ok, %{claims: claims, conn: conn(:get, "/"), token: token, impl: impl, handler: handler}}
   end
@@ -43,15 +43,15 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
   describe "init/1" do
     test "will use the config keys and default realm" do
       opts = VerifyHeaderInternal.init()
-      assert opts[:main_secret] == Application.get_env(:btrz_auth, :main_secret)
-      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :secondary_secret)
+      assert opts[:main_secret] == Application.get_env(:btrz_auth, :token)[:main_secret]
+      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :token)[:secondary_secret]
       assert opts[:realm_reg] == ~r/Bearer:? +(.*)$/i
     end
 
     test "will use the config keys and realm" do
       opts = VerifyHeaderInternal.init([realm: "test"])
-      assert opts[:main_secret] == Application.get_env(:btrz_auth, :main_secret)
-      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :secondary_secret)
+      assert opts[:main_secret] == Application.get_env(:btrz_auth, :token)[:main_secret]
+      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :token)[:secondary_secret]
       assert opts[:realm_reg] == ~r/test:? +(.*)$/i
     end
   end

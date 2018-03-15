@@ -18,7 +18,7 @@ end
 Add your configuration
 
 ```elixir
-config :btrz_auth,
+config :btrz_auth, :token,
     issuer: "your-issuer",
     main_secret: "YOUR_MAIN_KEY",
     secondary_secret: "YOUR_SECONDARY_KEY"
