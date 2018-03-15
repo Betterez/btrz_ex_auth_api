@@ -22,6 +22,14 @@ config :btrz_auth, :token,
     issuer: "your-issuer",
     main_secret: "YOUR_MAIN_KEY",
     secondary_secret: "YOUR_SECONDARY_KEY"
+
+config :btrz_auth, :db,
+    uris: ["127.0.0.1:27017"],
+    database: "dbname",
+    username: "",
+    password: "",
+    collection_name: "accounts",
+    property: "token"
 ```
 
 ## Plugs
@@ -30,9 +38,9 @@ You can use the [Guardian Plugs](https://hexdocs.pm/guardian/readme.html#plugs) 
 
 Look for a token in the header and verify it using main and secondary secrets provided by your app.
 
-#### `BtrzAuth.Plug.VerifyApiKey` (coming soon..)
+#### `BtrzAuth.Plug.VerifyApiKey`
 
-Look for the header `X_API_KEY` and verify against a Betterez Account, saving it into the `conn`.
+Look for the header `X_API_KEY` and verify against a mongodb document resource, saving it into the `conn`.
 ## Pipelines
 
 ### token_secured

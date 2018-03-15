@@ -3,7 +3,7 @@ defmodule BtrzAuth.Pipelines.TokenSecured do
     module: BtrzAuth.GuardianInternal,
     error_handler: BtrzAuth.AuthErrorHandler
 
-  #plug Guardian.Plug.VerifyHeader
+  plug BtrzAuth.Plug.VerifyApiKey
   plug BtrzAuth.Plug.VerifyHeaderInternal
   plug Guardian.Plug.EnsureAuthenticated
   plug Guardian.Plug.LoadResource, allow_blank: true # remove this option if always will load the account
