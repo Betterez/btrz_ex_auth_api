@@ -63,8 +63,8 @@ if Code.ensure_loaded?(Plug) do
 
     @spec init(Keyword.t()) :: Keyword.t()
     def init(opts \\ []) do
-      opts = Keyword.put(opts, :main_secret, Keyword.get(Application.get_env(:btrz_auth, BtrzAuth.GuardianInternal), :main_secret, ""))
-      opts = Keyword.put(opts, :secondary_secret, Keyword.get(Application.get_env(:btrz_auth, BtrzAuth.GuardianInternal), :secondary_secret, ""))
+      opts = Keyword.put(opts, :main_secret, Application.get_env(:btrz_auth, :main_secret, ""))
+      opts = Keyword.put(opts, :secondary_secret, Application.get_env(:btrz_auth, :secondary_secret, ""))
       realm = Keyword.get(opts, :realm, "Bearer")
       case realm do
         "" ->
