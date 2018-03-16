@@ -4,7 +4,6 @@ defmodule BtrzAuth.Pipelines.TokenSecured do
     module: BtrzAuth.GuardianInternal,
     error_handler: BtrzAuth.AuthErrorHandler
 
-  plug(BtrzAuth.Plug.VerifyApiKey)
   plug(BtrzAuth.Plug.VerifyHeaderInternal)
   plug(Guardian.Plug.EnsureAuthenticated)
   # remove this option if always will load the account
