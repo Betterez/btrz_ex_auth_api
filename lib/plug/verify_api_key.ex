@@ -42,6 +42,7 @@ if Code.ensure_loaded?(Plug) do
 
     require Logger
 
+    @token_config Application.get_env(:btrz_auth, :token)
     @db_config Application.get_env(:btrz_auth, :db)
 
     @spec init(Keyword.t()) :: Keyword.t()
@@ -57,18 +58,24 @@ if Code.ensure_loaded?(Plug) do
           respond({{:error, :api_key_not_found}, allow_blank, conn, opts})
 
         api_key ->
-          {:ok, mongo_conn} =
-            Mongo.start_link(database: @db_config[:database], seeds: @db_config[:uris])
+          if Mix.env === :test do
+            # only for test
+            conn = put_private(conn, :auth_account, Keyword.get(@token_config, :test_resource, %{}))
+            respond({{:ok, :api_key}, allow_blank, conn, opts})
+          else
+            {:ok, mongo_conn} =
+              Mongo.start_link(database: @db_config[:database], seeds: @db_config[:uris])
 
-          case Mongo.find_one(mongo_conn, @db_config[:collection_name], %{
-                 @db_config[:property] => api_key
-               }) do
-            nil ->
-              respond({{:error, :account_not_found}, allow_blank, conn, opts})
+            case Mongo.find_one(mongo_conn, @db_config[:collection_name], %{
+                  @db_config[:property] => api_key
+                }) do
+              nil ->
+                respond({{:error, :account_not_found}, allow_blank, conn, opts})
 
-            result ->
-              conn = put_private(conn, :auth_account, result)
-              respond({{:ok, :api_key}, allow_blank, conn, opts})
+              result ->
+                conn = put_private(conn, :auth_account, result)
+                respond({{:ok, :api_key}, allow_blank, conn, opts})
+            end
           end
       end
     end
