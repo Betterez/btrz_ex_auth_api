@@ -31,7 +31,8 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
         |> VerifyApiKey.call([])
 
-      assert is_map(conn.private[:auth_account]) == true
+      refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "using the test x-api-key for :test env" do
@@ -41,6 +42,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> put_req_header("x-api-key", @test_token)
         |> VerifyApiKey.call([])
 
+      refute conn.status == 401
       assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
@@ -51,7 +53,8 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
         |> VerifyApiKey.call(search_in: :all)
 
-      assert is_map(conn.private[:auth_account]) == true
+      refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "will find the x-api-key header but not the resource -> with allow_blank" do
@@ -62,6 +65,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(allow_blank: true)
 
       refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "will find the x-api-key query string but not the resource -> with allow_blank" do
@@ -71,6 +75,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(allow_blank: true)
 
       refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "will use the x-api-key query string sent" do
@@ -79,7 +84,8 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> conn("/?x-api-key=fa413eed-b4ef-4b4c-859b-693aaa31376d")
         |> VerifyApiKey.call([])
 
-      assert is_map(conn.private[:auth_account]) == true
+      refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "will use the x-api-key query string sent if search_in :all" do
@@ -88,7 +94,8 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> conn("/?x-api-key=fa413eed-b4ef-4b4c-859b-693aaa31376d")
         |> VerifyApiKey.call(search_in: :all)
 
-      assert is_map(conn.private[:auth_account]) == true
+      refute conn.status == 401
+      assert conn.private[:auth_account] == @token_config[:test_resource]
     end
 
     test "will search only for x-api-key in header" do
@@ -98,6 +105,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(search_in: :header, error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
+      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
     end
 
     test "will search only for x-api-key in query string" do
@@ -108,6 +116,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(search_in: :query, error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
+      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
     end
 
     test "401 if x-api-key was not passed" do
@@ -117,6 +126,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
+      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
     end
   end
 end

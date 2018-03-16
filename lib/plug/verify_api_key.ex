@@ -23,7 +23,7 @@ if Code.ensure_loaded?(Plug) do
     Options:
 
     * `search_in` - atom. The places to look for the x-api-key (`:header`, `:query` or `:all`). Defaults to: `:all`
-    * `allow_blank` - boolean. If set to true, will try to load a resource once the x-api-key is found, but will not fail if no resource is found.
+    * `allow_blank` - boolean. If set to true, will try to load a resource once the x-api-key is found, but will not fail if no resource is found. Defaults: false
 
     ### Example
 
