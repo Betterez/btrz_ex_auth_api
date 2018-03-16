@@ -21,8 +21,7 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
   defmodule Impl do
     @moduledoc false
 
-    use Guardian,
-      otp_app: :guardian
+    use Guardian, otp_app: :guardian
 
     def subject_for_token(%{id: id}, _claims), do: {:ok, id}
     def subject_for_token(%{"id" => id}, _claims), do: {:ok, id}
@@ -36,7 +35,7 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
     impl = __MODULE__.Impl
     handler = __MODULE__.Handler
     secret = Application.get_env(:btrz_auth, :token)[:main_secret]
-    {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, [secret: secret])
+    {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
     {:ok, %{claims: claims, conn: conn(:get, "/"), token: token, impl: impl, handler: handler}}
   end
 
@@ -49,7 +48,7 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
     end
 
     test "will use the config keys and realm" do
-      opts = VerifyHeaderInternal.init([realm: "test"])
+      opts = VerifyHeaderInternal.init(realm: "test")
       assert opts[:main_secret] == Application.get_env(:btrz_auth, :token)[:main_secret]
       assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :token)[:secondary_secret]
       assert opts[:realm_reg] == ~r/test:? +(.*)$/i
@@ -59,6 +58,7 @@ defmodule BtrzAuth.Plug.VerifyHeaderInternalTest do
   describe "call/2" do
     test "will use the main key and pass", ctx do
       opts = VerifyHeaderInternal.init()
+
       conn =
         :get
         |> conn("/")

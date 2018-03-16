@@ -36,7 +36,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         :get
         |> conn("/")
         |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call([search_in: :all])
+        |> VerifyApiKey.call(search_in: :all)
 
       assert is_map(conn.private[:auth_account]) == true
     end
@@ -46,16 +46,16 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         :get
         |> conn("/")
         |> put_req_header("x-api-key", "x-x-x-x-x-x-x-x-x-x-x-")
-        |> VerifyApiKey.call([allow_blank: true])
+        |> VerifyApiKey.call(allow_blank: true)
 
-        refute conn.status == 401
+      refute conn.status == 401
     end
 
     test "will find the x-api-key query string but not the resource -> with allow_blank" do
       conn =
         :get
         |> conn("/?x-api-key=x-x-x-x-x-x-x-x-x-")
-        |> VerifyApiKey.call([allow_blank: true])
+        |> VerifyApiKey.call(allow_blank: true)
 
       refute conn.status == 401
     end
@@ -73,7 +73,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
       conn =
         :get
         |> conn("/?x-api-key=fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call([search_in: :all])
+        |> VerifyApiKey.call(search_in: :all)
 
       assert is_map(conn.private[:auth_account]) == true
     end
@@ -82,7 +82,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
       conn =
         :get
         |> conn("/?x-api-key=fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call([search_in: :header, error_handler: __MODULE__.Handler])
+        |> VerifyApiKey.call(search_in: :header, error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
     end
@@ -92,7 +92,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         :get
         |> conn("/")
         |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call([search_in: :query, error_handler: __MODULE__.Handler])
+        |> VerifyApiKey.call(search_in: :query, error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
     end
@@ -101,7 +101,7 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
       conn =
         :get
         |> conn("/")
-        |> VerifyApiKey.call([error_handler: __MODULE__.Handler])
+        |> VerifyApiKey.call(error_handler: __MODULE__.Handler)
 
       assert conn.status == 401
     end

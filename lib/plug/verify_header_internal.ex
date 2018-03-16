@@ -63,9 +63,22 @@ if Code.ensure_loaded?(Plug) do
 
     @spec init(Keyword.t()) :: Keyword.t()
     def init(opts \\ []) do
-      opts = Keyword.put(opts, :main_secret, Keyword.get(Application.get_env(:btrz_auth, :token), :main_secret, ""))
-      opts = Keyword.put(opts, :secondary_secret, Keyword.get(Application.get_env(:btrz_auth, :token), :secondary_secret, ""))
+      opts =
+        Keyword.put(
+          opts,
+          :main_secret,
+          Keyword.get(Application.get_env(:btrz_auth, :token), :main_secret, "")
+        )
+
+      opts =
+        Keyword.put(
+          opts,
+          :secondary_secret,
+          Keyword.get(Application.get_env(:btrz_auth, :token), :secondary_secret, "")
+        )
+
       realm = Keyword.get(opts, :realm, "Bearer")
+
       case realm do
         "" ->
           opts
@@ -109,9 +122,11 @@ if Code.ensure_loaded?(Plug) do
             {:ok, Guardian.Token.claims()} | {:error, any}
     defp decode_and_verify(module, token, claims_to_check, opts) do
       opts = Keyword.put(opts, :secret, opts[:main_secret])
+
       case Guardian.decode_and_verify(module, token, claims_to_check, opts) do
         {:ok, claims} ->
           {:ok, claims}
+
         _ ->
           Logger.info("main secret is not valid for internal auth, using the secondary secret..")
           opts = Keyword.put(opts, :secret, opts[:secondary_secret])

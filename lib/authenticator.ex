@@ -13,6 +13,6 @@ defmodule BtrzAuth.Authenticator do
 
   """
   def get_token() do
-    BtrzAuth.Guardian.encode_and_sign(%{id: "1234", name: "test"}, %{}, [ttl: {2, :minutes}])
+    BtrzAuth.Guardian.encode_and_sign(%{id: "1234", name: "test"}, %{}, ttl: {2, :minutes})
   end
 end

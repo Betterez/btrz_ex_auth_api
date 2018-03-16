@@ -1,10 +1,12 @@
 defmodule BtrzAuth.Pipelines.TokenSecured do
-  use Guardian.Plug.Pipeline, otp_app: :btrz_auth,
+  use Guardian.Plug.Pipeline,
+    otp_app: :btrz_auth,
     module: BtrzAuth.GuardianInternal,
     error_handler: BtrzAuth.AuthErrorHandler
 
-  plug BtrzAuth.Plug.VerifyApiKey
-  plug BtrzAuth.Plug.VerifyHeaderInternal
-  plug Guardian.Plug.EnsureAuthenticated
-  plug Guardian.Plug.LoadResource, allow_blank: true # remove this option if always will load the account
+  plug(BtrzAuth.Plug.VerifyApiKey)
+  plug(BtrzAuth.Plug.VerifyHeaderInternal)
+  plug(Guardian.Plug.EnsureAuthenticated)
+  # remove this option if always will load the account
+  plug(Guardian.Plug.LoadResource, allow_blank: true)
 end

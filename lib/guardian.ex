@@ -10,6 +10,7 @@ defmodule BtrzAuth.Guardian do
     sub = to_string(resource.id)
     {:ok, sub}
   end
+
   def subject_for_token(_, _) do
     {:error, :reason_for_error}
   end
@@ -19,9 +20,11 @@ defmodule BtrzAuth.Guardian do
     # found in the `"sub"` key. In `above subject_for_token/2` we returned
     # the resource id so here we'll rely on that to look it up.
     id = claims["sub"]
-    resource = id#MyApp.get_resource_by_id(id)
-    {:ok,  resource}
+    # MyApp.get_resource_by_id(id)
+    resource = id
+    {:ok, resource}
   end
+
   def resource_from_claims(_claims) do
     {:error, :reason_for_error}
   end

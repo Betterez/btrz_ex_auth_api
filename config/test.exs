@@ -12,4 +12,3 @@ config :btrz_auth, :db,
   password: "",
   collection_name: "applications",
   property: "key"
-

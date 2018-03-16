@@ -4,6 +4,7 @@ defmodule BtrzAuth.GuardianInternal do
   def subject_for_token(resource, _claims) when resource == %{} do
     {:ok, %{}}
   end
+
   def subject_for_token(_, _) do
     {:error, :invalid_resource}
   end

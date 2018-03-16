@@ -38,7 +38,7 @@ defmodule BtrzAuth.MixProject do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "test": ["coveralls"]
+      test: ["coveralls"]
     ]
   end
 end

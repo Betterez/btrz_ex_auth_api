@@ -3,17 +3,18 @@ defmodule BtrzAuth.GuardianInternalTest do
 
   alias BtrzAuth.GuardianInternal
 
-  describe("subject_for_token") do
+  describe "subject_for_token" do
     test "for %{} given returns ok" do
       assert GuardianInternal.subject_for_token(%{}, nil) == {:ok, %{}}
     end
 
     test "returns error with any other" do
-      assert GuardianInternal.subject_for_token(%{some: "thing"}, nil) == {:error, :invalid_resource}
+      assert GuardianInternal.subject_for_token(%{some: "thing"}, nil) ==
+               {:error, :invalid_resource}
     end
   end
 
-  describe("resource_from_claims") do
+  describe "resource_from_claims" do
     test "returns {:ok, %{}} tuple" do
       assert GuardianInternal.resource_from_claims(%{"sub" => %{}}) == {:ok, %{}}
     end

@@ -55,11 +55,17 @@ if Code.ensure_loaded?(Plug) do
       case get_api_key(conn, search_in) do
         nil ->
           respond({{:error, :api_key_not_found}, allow_blank, conn, opts})
+
         api_key ->
-          {:ok, mongo_conn} = Mongo.start_link(database: @db_config[:database], seeds: @db_config[:uris])
-          case Mongo.find_one(mongo_conn, @db_config[:collection_name], %{@db_config[:property] => api_key}) do
+          {:ok, mongo_conn} =
+            Mongo.start_link(database: @db_config[:database], seeds: @db_config[:uris])
+
+          case Mongo.find_one(mongo_conn, @db_config[:collection_name], %{
+                 @db_config[:property] => api_key
+               }) do
             nil ->
               respond({{:error, :account_not_found}, allow_blank, conn, opts})
+
             result ->
               conn = put_private(conn, :auth_account, result)
               respond({{:ok, :api_key}, allow_blank, conn, opts})
@@ -67,12 +73,9 @@ if Code.ensure_loaded?(Plug) do
       end
     end
 
-    defp get_api_key(conn, :header),
-      do: get_api_key_from_header(conn)
-    defp get_api_key(conn, :query),
-      do: get_api_key_from_query(conn)
-    defp get_api_key(conn, _),
-      do: get_api_key_from_header(conn) || get_api_key_from_query(conn)
+    defp get_api_key(conn, :header), do: get_api_key_from_header(conn)
+    defp get_api_key(conn, :query), do: get_api_key_from_query(conn)
+    defp get_api_key(conn, _), do: get_api_key_from_header(conn) || get_api_key_from_query(conn)
 
     defp get_api_key_from_header(conn) do
       case get_req_header(conn, "x-api-key") do
@@ -86,20 +89,20 @@ if Code.ensure_loaded?(Plug) do
       conn.query_params["x-api-key"]
     end
 
-    defp respond({{:ok, _}, _allow_blank, conn, _opts}),
-      do: conn
-    defp respond({{:error, :account_not_found}, allow_blank=true, conn, opts}),
-      do: conn
-    defp respond({{:error, :account_not_found}, allow_blank=false, conn, opts}),
+    defp respond({{:ok, _}, _allow_blank, conn, _opts}), do: conn
+    defp respond({{:error, :account_not_found}, allow_blank = true, conn, opts}), do: conn
+
+    defp respond({{:error, :account_not_found}, allow_blank = false, conn, opts}),
       do: respond_error(conn, :account_not_found, opts)
+
     defp respond({{:error, :api_key_not_found}, _allow_blank, conn, opts}),
       do: respond_error(conn, :api_key_not_found, opts)
 
     defp respond_error(conn, reason, opts) do
       conn
-        |> Pipeline.fetch_error_handler!(opts)
-        |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
-        |> halt()
+      |> Pipeline.fetch_error_handler!(opts)
+      |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
+      |> halt()
     end
   end
 end
