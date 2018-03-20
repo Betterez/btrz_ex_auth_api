@@ -97,9 +97,9 @@ if Code.ensure_loaded?(Plug) do
     end
 
     defp respond({{:ok, _}, _allow_blank, conn, _opts}), do: conn
-    defp respond({{:error, :account_not_found}, allow_blank = true, conn, opts}), do: conn
+    defp respond({{:error, :account_not_found}, _allow_blank = true, conn, _opts}), do: conn
 
-    defp respond({{:error, :account_not_found}, allow_blank = false, conn, opts}),
+    defp respond({{:error, :account_not_found}, _allow_blank = false, conn, opts}),
       do: respond_error(conn, :account_not_found, opts)
 
     defp respond({{:error, :api_key_not_found}, _allow_blank, conn, opts}),
