@@ -60,7 +60,7 @@ if Code.ensure_loaded?(Plug) do
         api_key ->
           if Mix.env === :test do
             # only for test
-            conn = put_private(conn, :auth_account, Keyword.get(@token_config, :test_resource, %{}))
+            conn = put_private(conn, :auth_user, Keyword.get(@token_config, :test_resource, %{}))
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
             {:ok, mongo_conn} =
@@ -73,7 +73,7 @@ if Code.ensure_loaded?(Plug) do
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
 
               result ->
-                conn = put_private(conn, :auth_account, result)
+                conn = put_private(conn, :auth_user, result)
                 respond({{:ok, :api_key}, allow_blank, conn, opts})
             end
           end

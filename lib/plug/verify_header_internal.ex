@@ -97,7 +97,7 @@ if Code.ensure_loaded?(Plug) do
       if Mix.env === :test do
         # only for test
         conn
-        |> GPlug.put_current_token("test-token", key: "test")
+        |> GPlug.put_current_token("test-internal-token", key: "test")
         |> GPlug.put_current_claims(%{}, key: "test")
       else
         with nil <- GPlug.current_token(conn, opts),
