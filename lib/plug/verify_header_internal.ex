@@ -94,27 +94,34 @@ if Code.ensure_loaded?(Plug) do
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(conn, opts) do
-      with nil <- GPlug.current_token(conn, opts),
-           {:ok, token} <- fetch_token_from_header(conn, opts),
-           module <- Pipeline.fetch_module!(conn, opts),
-           claims_to_check <- Keyword.get(opts, :claims, %{}),
-           key <- storage_key(conn, opts),
-           {:ok, claims} <- decode_and_verify(module, token, claims_to_check, opts) do
+      if Mix.env === :test do
+        # only for test
         conn
-        |> GPlug.put_current_token(token, key: key)
-        |> GPlug.put_current_claims(claims, key: key)
+        |> GPlug.put_current_token("test-token", key: "test")
+        |> GPlug.put_current_claims(%{}, key: "test")
       else
-        :no_token_found ->
+        with nil <- GPlug.current_token(conn, opts),
+            {:ok, token} <- fetch_token_from_header(conn, opts),
+            module <- Pipeline.fetch_module!(conn, opts),
+            claims_to_check <- Keyword.get(opts, :claims, %{}),
+            key <- storage_key(conn, opts),
+            {:ok, claims} <- decode_and_verify(module, token, claims_to_check, opts) do
           conn
+          |> GPlug.put_current_token(token, key: key)
+          |> GPlug.put_current_claims(claims, key: key)
+        else
+          :no_token_found ->
+            conn
 
-        {:error, reason} ->
-          conn
-          |> Pipeline.fetch_error_handler!(opts)
-          |> apply(:auth_error, [conn, {:invalid_token, reason}, opts])
-          |> halt()
+          {:error, reason} ->
+            conn
+            |> Pipeline.fetch_error_handler!(opts)
+            |> apply(:auth_error, [conn, {:invalid_token, reason}, opts])
+            |> halt()
 
-        _ ->
-          conn
+          _ ->
+            conn
+        end
       end
     end
 

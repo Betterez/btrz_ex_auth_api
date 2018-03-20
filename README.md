@@ -43,10 +43,17 @@ Look for a token in the header and verify it using main and secondary secrets pr
 Look for the header `X_API_KEY` and verify against a mongodb document resource, saving it into the `conn`.
 ## Pipelines
 
+### api_key_secured
+
+This pipeline will check the x-api-key header is sent with a token and load the implemented resource in the `conn`.
+
+* plug BtrzAuth.Plug.VerifyApiKey
+* plug Guardian.Plug.LoadResource
 ### token_secured
 
 This pipeline will check the internal token with the configured main and secondary secret keys, then ensure authenticated and load the implemented resource in the `conn`.
 
+* plug BtrzAuth.Plug.VerifyApiKey
 * plug BtrzAuth.Plug.VerifyHeaderInternal
 * plug Guardian.Plug.EnsureAuthenticated
 * plug Guardian.Plug.LoadResource
