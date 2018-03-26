@@ -58,6 +58,7 @@ if Code.ensure_loaded?(Plug) do
         api_key ->
           if Mix.env === :test do
             # only for test
+            IO.inspect Application.get_all_env(:btrz_auth), label: "plug"
             conn = put_private(conn, :auth_user, Keyword.get(token_config, :test_resource, %{}))
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
