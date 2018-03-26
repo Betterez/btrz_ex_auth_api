@@ -64,10 +64,10 @@ if Code.ensure_loaded?(Plug) do
             db_config = Application.get_env(:btrz_auth, :db)
 
             {:ok, mongo_conn} =
-              Mongo.start_link(database: db_config[:database], seeds: @db_config[:uris])
+              Mongo.start_link(database: db_config[:database], seeds: db_config[:uris])
 
             case Mongo.find_one(mongo_conn, db_config[:collection_name], %{
-                  @db_config[:property] => api_key
+                  db_config[:property] => api_key
                 }) do
               nil ->
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
