@@ -56,7 +56,6 @@ if Code.ensure_loaded?(Plug) do
           respond({{:error, :api_key_not_found}, allow_blank, conn, opts})
 
         api_key ->
-          IO.puts Mix.env
           if Mix.env === :test do
             # only for test
             conn = put_private(conn, :auth_user, Keyword.get(token_config, :test_resource, %{}))
