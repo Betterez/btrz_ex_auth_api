@@ -96,9 +96,7 @@ if Code.ensure_loaded?(Plug) do
     def call(conn, opts) do
       if Mix.env === :test do
         # only for test
-        conn
-        |> GPlug.put_current_token("test-internal-token", key: "test")
-        |> GPlug.put_current_claims(%{}, key: "test")
+        verify_for_testing(conn, opts)
       else
         with nil <- GPlug.current_token(conn, opts),
             {:ok, token} <- fetch_token_from_header(conn, opts),
@@ -122,6 +120,27 @@ if Code.ensure_loaded?(Plug) do
           _ ->
             conn
         end
+      end
+    end
+
+    defp verify_for_testing(conn, opts) do
+      with nil <- GPlug.current_token(conn, opts),
+          {:ok, token} <- fetch_token_from_header(conn, opts) do
+        conn
+        |> GPlug.put_current_token("test-internal-token")
+        |> GPlug.put_current_claims(%{})
+      else
+        :no_token_found ->
+          conn
+
+        {:error, reason} ->
+          conn
+          |> Pipeline.fetch_error_handler!(opts)
+          |> apply(:auth_error, [conn, {:invalid_token, reason}, opts])
+          |> halt()
+
+        _ ->
+          conn
       end
     end
 
