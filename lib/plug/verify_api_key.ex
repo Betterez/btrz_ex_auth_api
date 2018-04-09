@@ -64,7 +64,7 @@ if Code.ensure_loaded?(Plug) do
           else
             db_config = Application.get_env(:btrz_auth, :db)
 
-            {:ok, mongo_conn} = mongo_connection(db_config[:database], db_config[:uri])
+            {:ok, mongo_conn} = mongo_connection(db_config[:uri], db_config)
 
             Logger.info("Mongo client process spawned #{inspect(mongo_conn)}")
 
@@ -89,12 +89,12 @@ if Code.ensure_loaded?(Plug) do
       end
     end
 
-    defp mongo_connection(db_name, uri) when is_list(uri) do
-      Mongo.start_link(database: db_name, seeds: uri, pool: DBConnection.Poolboy)
+    defp mongo_connection(uri, db_config) when is_list(uri) do
+      Mongo.start_link(database: db_config[:database], username: db_config[:username], password: db_config[:password], seeds: uri, pool: DBConnection.Poolboy)
     end
 
-    defp mongo_connection(db_name, uri) when is_binary(uri) do
-      Mongo.start_link(database: db_name, url: "mongodb://" <> uri, pool: DBConnection.Poolboy)
+    defp mongo_connection(uri, db_config) when is_binary(uri) do
+      Mongo.start_link(url: "mongodb://#{uri}/#{db_config[:database]}", username: db_config[:username], password: db_config[:password], pool: DBConnection.Poolboy)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)
