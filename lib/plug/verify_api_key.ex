@@ -70,7 +70,7 @@ if Code.ensure_loaded?(Plug) do
 
             case Mongo.find_one(mongo_conn, db_config[:collection_name], %{
                   db_config[:property] => api_key
-                }) do
+                }, pool: DBConnection.Poolboy) do
               nil ->
                 Logger.error("account not found for the provided api_key: #{api_key}")
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
@@ -85,10 +85,10 @@ if Code.ensure_loaded?(Plug) do
     end
 
     defp mongo_connection(db_name, uri) when is_list(uri) do
-      Mongo.start_link(database: db_name, seeds: uri)
+      Mongo.start_link(database: db_name, seeds: uri, pool: DBConnection.Poolboy)
     end
     defp mongo_connection(db_name, uri) when is_binary(uri) do
-      Mongo.start_link(database: db_name, url: "mongodb://" <> uri)
+      Mongo.start_link(database: db_name, url: "mongodb://" <> uri, pool: DBConnection.Poolboy)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)

@@ -4,7 +4,7 @@ defmodule BtrzAuth.MixProject do
   def project do
     [
       app: :btrz_auth,
-      version: "0.2.0",
+      version: "0.2.1",
       elixir: "~> 1.5",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -26,7 +26,8 @@ defmodule BtrzAuth.MixProject do
       {:plug, "~> 1.4"},
       {:guardian, "~> 1.0"},
       {:excoveralls, "~> 0.8", only: :test},
-      {:mongodb, "~> 0.4.4"}
+      {:mongodb, "~> 0.4.4"},
+      {:poolboy, "~> 1.5"}
     ]
   end
 
