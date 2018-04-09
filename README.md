@@ -24,7 +24,7 @@ config :btrz_auth, :token,
     secondary_secret: "YOUR_SECONDARY_KEY"
 
 config :btrz_auth, :db,
-    uris: ["127.0.0.1:27017"],
+    uri: "127.0.0.1:27017", # or more than one for seeds -> uri: ["uri1", "uri2" ...]
     database: "dbname",
     username: "",
     password: "",

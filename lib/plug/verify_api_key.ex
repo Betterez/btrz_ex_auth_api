@@ -58,26 +58,37 @@ if Code.ensure_loaded?(Plug) do
         api_key ->
           if Mix.env === :test do
             # only for test
+            Logger.info("using VerifyApiKey in test mode")
             conn = put_private(conn, :auth_user, Keyword.get(token_config, :test_resource, %{}))
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
             db_config = Application.get_env(:btrz_auth, :db)
 
-            {:ok, mongo_conn} =
-              Mongo.start_link(database: db_config[:database], seeds: db_config[:uris])
+            {:ok, mongo_conn} = mongo_connection(db_config[:database], db_config[:uri])
+
+            Logger.info("Mongo client process spawned #{inspect(mongo_conn)}")
 
             case Mongo.find_one(mongo_conn, db_config[:collection_name], %{
                   db_config[:property] => api_key
                 }) do
               nil ->
+                Logger.error("account not found for the provided api_key: #{api_key}")
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
 
               result ->
+                Logger.info("account found for the provided api_key: #{api_key}")
                 conn = put_private(conn, :auth_user, result)
                 respond({{:ok, :api_key}, allow_blank, conn, opts})
             end
           end
       end
+    end
+
+    defp mongo_connection(db_name, uri) when is_list(uri) do
+      Mongo.start_link(database: db_name, seeds: uri)
+    end
+    defp mongo_connection(db_name, uri) when is_binary(uri) do
+      Mongo.start_link(database: db_name, url: "mongodb://" <> uri)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)

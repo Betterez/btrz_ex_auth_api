@@ -7,7 +7,7 @@ config :btrz_auth, :token,
   test_resource: %{"id" => "gj66MrTI5t2"}
 
 config :btrz_auth, :db,
-  uris: ["127.0.0.1:27017"],
+  uri: ["127.0.0.1:27017"],
   database: "betterez_core",
   username: "",
   password: "",
