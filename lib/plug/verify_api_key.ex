@@ -90,11 +90,11 @@ if Code.ensure_loaded?(Plug) do
     end
 
     defp mongo_connection(uri, db_config) when is_list(uri) do
-      Mongo.start_link(database: db_config[:database], username: db_config[:username], password: db_config[:password], seeds: uri, pool: DBConnection.Poolboy)
+      Mongo.start_link(excluded_hosts: db_config[:excluded_hosts], database: db_config[:database], username: db_config[:username], password: db_config[:password], seeds: uri, pool: DBConnection.Poolboy)
     end
 
     defp mongo_connection(uri, db_config) when is_binary(uri) do
-      Mongo.start_link(url: "mongodb://#{uri}/#{db_config[:database]}", username: db_config[:username], password: db_config[:password], pool: DBConnection.Poolboy)
+      Mongo.start_link(excluded_hosts: db_config[:excluded_hosts], url: "mongodb://#{uri}/#{db_config[:database]}", username: db_config[:username], password: db_config[:password], pool: DBConnection.Poolboy)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)
