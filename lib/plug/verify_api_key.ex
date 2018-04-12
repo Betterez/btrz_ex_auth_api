@@ -90,12 +90,12 @@ if Code.ensure_loaded?(Plug) do
     end
 
     defp mongo_connection(uri, db_config) when is_list(uri) do
-      Logger.info({uri, db_config}, label: "mongo config using seeds")
+      Logger.info("mongo config using seeds #{inspect({uri, db_config})}")
       Mongo.start_link(excluded_hosts: db_config[:excluded_hosts], database: db_config[:database], username: db_config[:username], password: db_config[:password], seeds: uri, pool: DBConnection.Poolboy)
     end
 
     defp mongo_connection(uri, db_config) when is_binary(uri) do
-      Logger.info({uri, db_config}, label: "mongo config")
+      Logger.info("mongo config #{inspect({uri, db_config})}")
       Mongo.start_link(excluded_hosts: db_config[:excluded_hosts], url: "mongodb://#{uri}/#{db_config[:database]}", username: db_config[:username], password: db_config[:password], pool: DBConnection.Poolboy)
     end
 
