@@ -26,7 +26,7 @@ defmodule BtrzAuth.MixProject do
       {:plug, "~> 1.4"},
       {:guardian, "~> 1.0"},
       {:excoveralls, "~> 0.8", only: :test},
-      {:mongodb, "~> 0.4.4"},
+      {:mongodb, git: "git://github.com/ankhers/mongodb", branch: "exclude_hosts"},
       {:poolboy, "~> 1.5"}
     ]
   end
