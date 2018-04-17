@@ -94,6 +94,8 @@ if Code.ensure_loaded?(Plug) do
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(conn, opts) do
+      Logger.debug("accessing VerifyHeaderInternal plug..")
+
       if Mix.env() === :test do
         # only for test
         verify_for_testing(conn, opts)
@@ -104,6 +106,8 @@ if Code.ensure_loaded?(Plug) do
              claims_to_check <- Keyword.get(opts, :claims, %{}),
              key <- storage_key(conn, opts),
              {:ok, claims} <- decode_and_verify(module, token, claims_to_check, opts) do
+          Logger.debug("passing VerifyHeaderInternal plug..")
+
           conn
           |> GPlug.put_current_token(token, key: key)
           |> GPlug.put_current_claims(claims, key: key)
@@ -125,7 +129,7 @@ if Code.ensure_loaded?(Plug) do
 
     defp verify_for_testing(conn, opts) do
       with nil <- GPlug.current_token(conn, opts),
-           {:ok, token} <- fetch_token_from_header(conn, opts) do
+           {:ok, _token} <- fetch_token_from_header(conn, opts) do
         conn
         |> GPlug.put_current_token("test-internal-token")
         |> GPlug.put_current_claims(%{})

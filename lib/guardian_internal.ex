@@ -1,5 +1,7 @@
 defmodule BtrzAuth.GuardianInternal do
-  use Guardian, otp_app: :btrz_auth
+  use Guardian,
+    otp_app: :btrz_auth,
+    issuer: "btrz-api-client"
 
   def subject_for_token(resource, _claims) when resource == %{} do
     {:ok, %{}}

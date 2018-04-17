@@ -4,7 +4,7 @@ defmodule BtrzAuth.Providers.InternalAuthTest do
   doctest InternalAuth
 
   test "get_token generates a binary token" do
-    {:ok, token, _} = InternalAuth.get_token()
+    {:ok, token, _} = InternalAuth.get_token(Application.get_env(:btrz_auth, :token))
     assert is_binary(token) === true
   end
 end

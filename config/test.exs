@@ -2,14 +2,8 @@ use Mix.Config
 
 config :btrz_auth, :token,
   issuer: "btrz-api-client",
-  main_secret: "NfUeAlyXW4ItToJokpFpdd4b5BhDGEE+3b9stOChnhkuLjRPMOgIVcRIqP8jCDeV",
-  secondary_secret: "t0PCMbBHkow/PUPH3Cz5gj66MrTI5t22iNCT2et3FqtHVvjhyDJ6kqOtrKTI6l3b",
+  main_secret: "Hf45fFc89SJ204kowbPIQ3Ui2Oxn2a8OWlEi6RTkuOd0jHvZiZh0EWwOxSVul5eS",
+  secondary_secret: "0IAWv5Qe1Mvp5x5xtv1rpxFsO38ylCSXV6uQktSIGoQob79ELkjbNQUWIxOKoaU4",
   test_resource: %{"id" => "gj66MrTI5t2"}
 
-config :btrz_auth, :db,
-  uri: ["127.0.0.1:27017"],
-  database: "betterez_core",
-  username: "",
-  password: "",
-  collection_name: "applications",
-  property: "key"
+config :btrz_auth, :services, accounts_url: "http://httpbin.org/"

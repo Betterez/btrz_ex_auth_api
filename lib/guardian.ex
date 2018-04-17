@@ -1,5 +1,7 @@
 defmodule BtrzAuth.Guardian do
-  use Guardian, otp_app: :btrz_auth
+  use Guardian,
+    otp_app: :btrz_auth,
+    issuer: "btrz-api-client"
 
   def subject_for_token(resource, _claims) do
     # You can use any value for the subject of your token but

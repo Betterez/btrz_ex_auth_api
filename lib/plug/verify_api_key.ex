@@ -2,7 +2,7 @@ if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyApiKey do
     @moduledoc """
 
-    Looks for and validates a token found in the `x-api-key` header using mongodb driver to verify the collection/property that matches the token.
+    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token.
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
     It requires an implementation module, an error handler and a key.
@@ -39,6 +39,7 @@ if Code.ensure_loaded?(Plug) do
     import Plug.Conn
 
     alias Guardian.Plug.Pipeline
+    alias BtrzAuth.Services.Accounts
 
     require Logger
 
@@ -47,6 +48,7 @@ if Code.ensure_loaded?(Plug) do
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(conn, opts) do
+      Logger.debug("accessing VerifyApiKey plug..")
       token_config = Application.get_env(:btrz_auth, :token)
       allow_blank = Keyword.get(opts, :allow_blank, false)
       search_in = Keyword.get(opts, :search_in, :all)
@@ -58,45 +60,32 @@ if Code.ensure_loaded?(Plug) do
         api_key ->
           if Mix.env() === :test do
             # only for test
-            Logger.info("using VerifyApiKey in test mode")
+            Logger.debug("using VerifyApiKey in test mode")
             conn = put_private(conn, :auth_user, Keyword.get(token_config, :test_resource, %{}))
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
-            db_config = Application.get_env(:btrz_auth, :db)
-
-            {:ok, mongo_conn} = mongo_connection(db_config[:uri], db_config)
-
-            Logger.info("Mongo client process spawned #{inspect(mongo_conn)}")
-
-            case Mongo.find_one(
-                   mongo_conn,
-                   db_config[:collection_name],
-                   %{
-                     db_config[:property] => api_key
-                   },
-                   pool: DBConnection.Poolboy
-                 ) do
-              nil ->
+            case Accounts.get_application(api_key) do
+              {:ok, result} when result == %{} ->
                 Logger.error("account not found for the provided api_key: #{api_key}")
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
 
-              result ->
+              {:ok, result} ->
                 Logger.info("account found for the provided api_key: #{api_key}")
+                Logger.debug("passing VerifyApiKey plug..")
                 conn = put_private(conn, :auth_user, result)
                 respond({{:ok, :api_key}, allow_blank, conn, opts})
+
+              {:error, error} ->
+                Logger.error(
+                  "account not found for the provided api_key: #{api_key}, reason: #{
+                    inspect(error)
+                  }"
+                )
+
+                respond({{:error, :account_not_found}, allow_blank, conn, opts})
             end
           end
       end
-    end
-
-    defp mongo_connection(uri, db_config) when is_list(uri) do
-      Logger.info("mongo config using seeds #{inspect(db_config)}")
-      Mongo.start_link(auth_source: db_config[:auth_source], database: db_config[:database], username: db_config[:username], password: db_config[:password], seeds: uri, pool: DBConnection.Poolboy)
-    end
-
-    defp mongo_connection(uri, db_config) when is_binary(uri) do
-      Logger.info("mongo config #{inspect(db_config)}")
-      Mongo.start_link(auth_source: db_config[:auth_source], url: "mongodb://#{uri}/#{db_config[:database]}", username: db_config[:username], password: db_config[:password], pool: DBConnection.Poolboy)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)
