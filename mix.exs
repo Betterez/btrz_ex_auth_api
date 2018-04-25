@@ -13,7 +13,7 @@ defmodule BtrzAuth.MixProject do
       source_url: @github_url,
       homepage_url: @github_url,
       elixir: "~> 1.5",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
       package: package(),

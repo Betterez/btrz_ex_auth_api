@@ -89,7 +89,8 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       refute conn.status == 401
     end
 
-    test "will use the user token with the private key (not internal) and will be authenticated", ctx do
+    test "will use the user token with the private key (not internal) and will be authenticated",
+         ctx do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:test_resource]["privateKey"]

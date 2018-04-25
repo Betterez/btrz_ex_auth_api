@@ -106,6 +106,7 @@ if Code.ensure_loaded?(Plug) do
 
         {:ok, "test-token"} ->
           Logger.debug("using test-token mode")
+
           conn
           |> GPlug.put_current_token("test-token")
           |> GPlug.put_current_claims(%{})
@@ -118,25 +119,25 @@ if Code.ensure_loaded?(Plug) do
 
     defp verify(_env, conn, opts) do
       with nil <- GPlug.current_token(conn, opts),
-             {:ok, token} <- fetch_token_from_header(conn, opts),
-             claims_to_check <- Keyword.get(opts, :claims, %{}),
-             key <- storage_key(conn, opts),
-             {:ok, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
-          Logger.debug("passing VerifyToken plug..")
+           {:ok, token} <- fetch_token_from_header(conn, opts),
+           claims_to_check <- Keyword.get(opts, :claims, %{}),
+           key <- storage_key(conn, opts),
+           {:ok, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
+        Logger.debug("passing VerifyToken plug..")
 
+        conn
+        |> GPlug.put_current_token(token, key: key)
+        |> GPlug.put_current_claims(claims, key: key)
+      else
+        :no_token_found ->
+          response_error(conn, :no_token_found, opts)
+
+        {:error, reason} ->
+          response_error(conn, reason, opts)
+
+        _ ->
           conn
-          |> GPlug.put_current_token(token, key: key)
-          |> GPlug.put_current_claims(claims, key: key)
-        else
-          :no_token_found ->
-            response_error(conn, :no_token_found, opts)
-
-          {:error, reason} ->
-            response_error(conn, reason, opts)
-
-          _ ->
-            conn
-        end
+      end
     end
 
     @spec response_error(Plug.Conn.t(), any, Keyword.t()) :: Plug.Conn.t()
@@ -147,8 +148,12 @@ if Code.ensure_loaded?(Plug) do
       |> halt()
     end
 
-    @spec decode_and_verify(Plug.Conn.t(), Guardian.Token.token(), Guardian.Token.claims(), Keyword.t()) ::
-            {:ok, Guardian.Token.claims()} | {:error, any}
+    @spec decode_and_verify(
+            Plug.Conn.t(),
+            Guardian.Token.token(),
+            Guardian.Token.claims(),
+            Keyword.t()
+          ) :: {:ok, Guardian.Token.claims()} | {:error, any}
     defp decode_and_verify(conn, token, claims_to_check, opts) do
       opts = Keyword.put(opts, :secret, conn.private.auth_user["privateKey"])
 
@@ -166,7 +171,10 @@ if Code.ensure_loaded?(Plug) do
               {:ok, claims}
 
             _ ->
-              Logger.debug("main secret is not valid for internal auth, using the secondary secret..")
+              Logger.debug(
+                "main secret is not valid for internal auth, using the secondary secret.."
+              )
+
               opts = Keyword.put(opts, :secret, opts[:secondary_secret])
               Guardian.decode_and_verify(BtrzAuth.GuardianInternal, token, claims_to_check, opts)
           end
