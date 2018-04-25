@@ -1,8 +1,8 @@
 if Code.ensure_loaded?(Plug) do
-  defmodule BtrzAuth.Plug.VerifyHeaderInternal do
+  defmodule BtrzAuth.Plug.VerifyToken do
     @moduledoc """
 
-    Looks for and validates a token found in the `Authorization` header using main and secondary secrets.
+    It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorization` header and verify it using first the account's private key, if not valid, then main and secondary secrets provided by your app for internal token cases.
 
     In the case where:
 
@@ -12,7 +12,7 @@ if Code.ensure_loaded?(Plug) do
     This plug will not do anything.
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
-    It requires an implementation module, an error handler and a key.
+    It requires an error handler.
 
     These can be set either:
 
@@ -94,73 +94,82 @@ if Code.ensure_loaded?(Plug) do
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(conn, opts) do
-      Logger.debug("accessing VerifyHeaderInternal plug..")
+      Logger.debug("accessing VerifyToken plug..")
+      verify(Mix.env(), conn, opts)
+    end
 
-      if Mix.env() === :test do
-        # only for test
-        verify_for_testing(conn, opts)
-      else
-        with nil <- GPlug.current_token(conn, opts),
+    @spec verify(atom, Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
+    defp verify(:test, conn, opts) do
+      case fetch_token_from_header(conn, opts) do
+        :no_token_found ->
+          response_error(conn, :no_token_found, opts)
+
+        {:ok, "test-token"} ->
+          Logger.debug("using test-token mode")
+          conn
+          |> GPlug.put_current_token("test-token")
+          |> GPlug.put_current_claims(%{})
+
+        {:ok, _local_test_token} ->
+          Logger.debug("using local test mode")
+          verify(:local_test, conn, opts)
+      end
+    end
+
+    defp verify(_env, conn, opts) do
+      with nil <- GPlug.current_token(conn, opts),
              {:ok, token} <- fetch_token_from_header(conn, opts),
-             module <- Pipeline.fetch_module!(conn, opts),
              claims_to_check <- Keyword.get(opts, :claims, %{}),
              key <- storage_key(conn, opts),
-             {:ok, claims} <- decode_and_verify(module, token, claims_to_check, opts) do
-          Logger.debug("passing VerifyHeaderInternal plug..")
+             {:ok, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
+          Logger.debug("passing VerifyToken plug..")
 
           conn
           |> GPlug.put_current_token(token, key: key)
           |> GPlug.put_current_claims(claims, key: key)
         else
           :no_token_found ->
-            conn
+            response_error(conn, :no_token_found, opts)
 
           {:error, reason} ->
-            conn
-            |> Pipeline.fetch_error_handler!(opts)
-            |> apply(:auth_error, [conn, {:invalid_token, reason}, opts])
-            |> halt()
+            response_error(conn, reason, opts)
 
           _ ->
             conn
         end
-      end
     end
 
-    defp verify_for_testing(conn, opts) do
-      with nil <- GPlug.current_token(conn, opts),
-           {:ok, _token} <- fetch_token_from_header(conn, opts) do
-        conn
-        |> GPlug.put_current_token("test-internal-token")
-        |> GPlug.put_current_claims(%{})
-      else
-        :no_token_found ->
-          conn
-
-        {:error, reason} ->
-          conn
-          |> Pipeline.fetch_error_handler!(opts)
-          |> apply(:auth_error, [conn, {:invalid_token, reason}, opts])
-          |> halt()
-
-        _ ->
-          conn
-      end
+    @spec response_error(Plug.Conn.t(), any, Keyword.t()) :: Plug.Conn.t()
+    defp response_error(conn, reason, opts) do
+      conn
+      |> Pipeline.fetch_error_handler!(opts)
+      |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
+      |> halt()
     end
 
-    @spec decode_and_verify(module, Guardian.Token.token(), Guardian.Token.claims(), Keyword.t()) ::
+    @spec decode_and_verify(Plug.Conn.t(), Guardian.Token.token(), Guardian.Token.claims(), Keyword.t()) ::
             {:ok, Guardian.Token.claims()} | {:error, any}
-    defp decode_and_verify(module, token, claims_to_check, opts) do
-      opts = Keyword.put(opts, :secret, opts[:main_secret])
+    defp decode_and_verify(conn, token, claims_to_check, opts) do
+      opts = Keyword.put(opts, :secret, conn.private.auth_user["privateKey"])
 
-      case Guardian.decode_and_verify(module, token, claims_to_check, opts) do
+      case Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts) do
         {:ok, claims} ->
           {:ok, claims}
 
         _ ->
-          Logger.info("main secret is not valid for internal auth, using the secondary secret..")
-          opts = Keyword.put(opts, :secret, opts[:secondary_secret])
-          Guardian.decode_and_verify(module, token, claims_to_check, opts)
+          Logger.debug("token not valid, checking if is internal token..")
+          opts = Keyword.put(opts, :secret, opts[:main_secret])
+          opts = Keyword.put(opts, :verify_issuer, true)
+
+          case Guardian.decode_and_verify(BtrzAuth.GuardianInternal, token, claims_to_check, opts) do
+            {:ok, claims} ->
+              {:ok, claims}
+
+            _ ->
+              Logger.debug("main secret is not valid for internal auth, using the secondary secret..")
+              opts = Keyword.put(opts, :secret, opts[:secondary_secret])
+              Guardian.decode_and_verify(BtrzAuth.GuardianInternal, token, claims_to_check, opts)
+          end
       end
     end
 

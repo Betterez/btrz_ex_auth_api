@@ -3,7 +3,7 @@ defmodule BtrzAuth.Services.Accounts do
     url = "#{Application.get_env(:btrz_auth, :services)[:accounts_url]}#{path}"
 
     {:ok, token, _claims} = BtrzAuth.internal_auth_token(Application.get_env(:btrz_auth, :token))
-
+    
     headers = [
       Authorization: "Bearer #{token}",
       Accept: "Application/json; Charset=utf-8",

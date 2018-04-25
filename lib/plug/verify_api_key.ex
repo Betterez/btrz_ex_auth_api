@@ -2,10 +2,10 @@ if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyApiKey do
     @moduledoc """
 
-    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token.
+    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token and saving the resource in `conn.private[:auth_user]`.
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
-    It requires an implementation module, an error handler and a key.
+    It requires an error handler as `error_handler`.
 
     These can be set either:
 
