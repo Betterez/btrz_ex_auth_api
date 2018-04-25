@@ -1,13 +1,22 @@
 defmodule BtrzAuth.MixProject do
   use Mix.Project
 
+  @github_url "https://github.com/Betterez/btrz_ex_auth_api"
+  @version "0.3.0"
+
   def project do
     [
       app: :btrz_auth,
-      version: "0.3.0",
+      version: @version,
+      name: "BtrzAuth",
+      description: "Elixir package for authentication handling using Plug and Guardian (JWT)",
+      source_url: @github_url,
+      homepage_url: @github_url,
       elixir: "~> 1.5",
-      start_permanent: Mix.env() == :prod,
+      start_permanent: Mix.env == :prod,
       deps: deps(),
+      docs: docs(),
+      package: package(),
       aliases: aliases(),
       test_coverage: [tool: ExCoveralls]
     ]
@@ -23,23 +32,36 @@ defmodule BtrzAuth.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:plug, "~> 1.4"},
       {:guardian, "~> 1.0"},
       {:excoveralls, "~> 0.8", only: :test},
       {:httpoison, "~> 1.0"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:junit_formatter, "~> 2.1", only: :test}
     ]
   end
 
-  # Aliases are shortcuts or tasks specific to the current project.
-  # For example, to create, migrate and run the seeds file at once:
-  #
-  #     $ mix ecto.setup
-  #
-  # See the documentation for `Mix` for more info on aliases.
+  defp docs do
+    [
+      main: "BtrzAuth",
+      source_ref: "v#{@version}",
+      source_url: @github_url
+    ]
+  end
+
   defp aliases do
     [
       test: ["coveralls"]
     ]
+  end
+
+  defp package do
+    %{
+      name: "btrz_ex_auth_api",
+      licenses: ["MIT"],
+      maintainers: ["Hernán García", "Pablo Brudnick"],
+      links: %{"GitHub" => @github_url}
+    }
   end
 end
