@@ -1,5 +1,7 @@
 # BtrzAuth
 
+[![Build status badge](https://img.shields.io/circleci/project/github/Betterez/btrz_ex_auth_api/master.svg)](https://circleci.com/gh/Betterez/btrz_ex_auth_api/tree/master)
+
 Elixir package for authentication handling using Plug and Guardian (JWT).
 It supports `X-API-KEY` token and `Authorization` tokens, for external users or internal API communication.
 
