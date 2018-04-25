@@ -46,7 +46,8 @@ defmodule BtrzAuth.MixProject do
     [
       main: "BtrzAuth",
       source_ref: "v#{@version}",
-      source_url: @github_url
+      source_url: @github_url,
+      extras: ["README.md"]
     ]
   end
 
