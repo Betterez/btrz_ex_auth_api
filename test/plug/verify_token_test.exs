@@ -65,7 +65,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:main_secret]
-      {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn
@@ -79,7 +79,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:secondary_secret]
-      {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn
@@ -94,7 +94,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:test_resource]["privateKey"]
-      {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn
@@ -118,7 +118,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = "not_valid"
-      {:ok, token, claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn
