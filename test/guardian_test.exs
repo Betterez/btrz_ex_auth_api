@@ -9,8 +9,7 @@ defmodule BtrzAuth.GuardianTest do
     end
 
     test "returns error with any other" do
-      assert Guardian.subject_for_token(%{some: "thing"}, nil) ==
-               {:error, :invalid_resource}
+      assert Guardian.subject_for_token(%{some: "thing"}, nil) == {:error, :invalid_resource}
     end
   end
 
