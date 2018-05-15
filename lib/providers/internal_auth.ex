@@ -10,6 +10,6 @@ defmodule BtrzAuth.Providers.InternalAuth do
           {:ok, Guardian.Token.token(), Guardian.Token.claims()} | {:error, any}
   def get_token(opts) do
     secret = Keyword.get(opts, :main_secret, "")
-    BtrzAuth.GuardianInternal.encode_and_sign(%{}, %{}, secret: secret, ttl: {2, :minutes})
+    BtrzAuth.Guardian.encode_and_sign(%{}, %{}, secret: secret, ttl: {2, :minutes})
   end
 end

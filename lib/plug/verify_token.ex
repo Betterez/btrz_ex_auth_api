@@ -166,7 +166,7 @@ if Code.ensure_loaded?(Plug) do
           opts = Keyword.put(opts, :secret, opts[:main_secret])
           opts = Keyword.put(opts, :verify_issuer, true)
 
-          case Guardian.decode_and_verify(BtrzAuth.GuardianInternal, token, claims_to_check, opts) do
+          case Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts) do
             {:ok, claims} ->
               {:ok, claims}
 
@@ -176,7 +176,7 @@ if Code.ensure_loaded?(Plug) do
               )
 
               opts = Keyword.put(opts, :secret, opts[:secondary_secret])
-              Guardian.decode_and_verify(BtrzAuth.GuardianInternal, token, claims_to_check, opts)
+              Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts)
           end
       end
     end
