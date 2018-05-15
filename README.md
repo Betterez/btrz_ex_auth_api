@@ -39,6 +39,12 @@ Looks for the header `X_API_KEY` and verify the account, saving it into `conn.pr
 It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorization` header and verify it using first the account's private key, if not valid, then main and secondary secrets provided by your app for internal token cases.
 ## Pipelines
 
+### BtrzAuth.Pipeline.ApiKeySecured
+
+This pipeline will check the x-api-key header is sent and load the implemented resource in `conn.private[:auth_user]`.
+
+* plug BtrzAuth.Plug.VerifyApiKey
+
 ### BtrzAuth.Pipeline.TokenSecured
 
 This pipeline will check the x-api-key header and also the token with the private key or the configured main and secondary secret keys in case the token could be an internal one, then ensure authenticated and load the implemented resource in the `conn.private[:auth_user]`.

@@ -9,5 +9,4 @@ defmodule BtrzAuth.Pipeline.ApiKeySecured do
     error_handler: BtrzAuth.AuthErrorHandler
 
   plug(BtrzAuth.Plug.VerifyApiKey)
-  plug(Guardian.Plug.LoadResource)
 end
