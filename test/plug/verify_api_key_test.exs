@@ -31,7 +31,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call([])
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "using the test x-api-key for :test env" do
@@ -42,7 +44,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call([])
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will use the x-api-key header sent with search_in :all" do
@@ -53,7 +57,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(search_in: :all)
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will find the x-api-key header but not the resource -> with allow_blank" do
@@ -64,7 +70,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(allow_blank: true)
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will find the x-api-key query string but not the resource -> with allow_blank" do
@@ -74,7 +82,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(allow_blank: true)
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will use the x-api-key query string sent" do
@@ -84,7 +94,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call([])
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will use the x-api-key query string sent if search_in :all" do
@@ -94,7 +106,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         |> VerifyApiKey.call(search_in: :all)
 
       refute conn.status == 401
-      assert conn.private[:application] == Application.get_env(:btrz_auth, :token)[:test_resource]
+
+      assert conn.private[:application] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
     end
 
     test "will search only for x-api-key in header" do

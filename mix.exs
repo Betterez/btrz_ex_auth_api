@@ -6,7 +6,7 @@ defmodule BtrzAuth.MixProject do
 
   def project do
     [
-      app: :btrz_auth,
+      app: :btrz_ex_auth_api,
       version: @version,
       name: "BtrzAuth",
       description: "Elixir package for authentication handling using Plug and Guardian (JWT)",

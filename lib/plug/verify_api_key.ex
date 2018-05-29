@@ -49,7 +49,7 @@ if Code.ensure_loaded?(Plug) do
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(conn, opts) do
       Logger.debug("accessing VerifyApiKey plug..")
-      token_config = Application.get_env(:btrz_auth, :token)
+      token_config = Application.get_env(:btrz_ex_auth_api, :token)
       allow_blank = Keyword.get(opts, :allow_blank, false)
       search_in = Keyword.get(opts, :search_in, :all)
 

@@ -34,22 +34,28 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
   describe "init/1" do
     test "will use the config keys and default realm" do
       opts = VerifyToken.init()
-      assert opts[:main_secret] == Application.get_env(:btrz_auth, :token)[:main_secret]
-      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :token)[:secondary_secret]
+      assert opts[:main_secret] == Application.get_env(:btrz_ex_auth_api, :token)[:main_secret]
+
+      assert opts[:secondary_secret] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:secondary_secret]
+
       assert opts[:realm_reg] == ~r/Bearer:? +(.*)$/i
     end
 
     test "will use the config keys and realm" do
       opts = VerifyToken.init(realm: "test")
-      assert opts[:main_secret] == Application.get_env(:btrz_auth, :token)[:main_secret]
-      assert opts[:secondary_secret] == Application.get_env(:btrz_auth, :token)[:secondary_secret]
+      assert opts[:main_secret] == Application.get_env(:btrz_ex_auth_api, :token)[:main_secret]
+
+      assert opts[:secondary_secret] ==
+               Application.get_env(:btrz_ex_auth_api, :token)[:secondary_secret]
+
       assert opts[:realm_reg] == ~r/test:? +(.*)$/i
     end
   end
 
   describe "call/2 using internal token" do
     setup do
-      token_config = Application.get_env(:btrz_auth, :token)
+      token_config = Application.get_env(:btrz_ex_auth_api, :token)
       impl = __MODULE__.Impl
       error_handler = __MODULE__.ErrorHandler
 

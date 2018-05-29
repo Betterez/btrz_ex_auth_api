@@ -1,6 +1,6 @@
 defmodule BtrzAuth.GuardianUser do
   use Guardian,
-    otp_app: :btrz_auth,
+    otp_app: :btrz_ex_auth_api,
     issuer: "btrz-api-accounts"
 
   def subject_for_token(resource, _claims) do

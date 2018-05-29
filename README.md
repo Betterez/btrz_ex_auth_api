@@ -16,14 +16,14 @@ by adding `btrz_auth` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:btrz_auth, "~> 0.5.0"}]
+  [{:btrz_ex_auth_api, "~> 0.5.0"}]
 end
 ```
 
 Add your configuration
 
 ```elixir
-config :btrz_auth, :token,
+config :btrz_ex_auth_api, :token,
     issuer: "your-issuer",
     main_secret: "YOUR_MAIN_KEY",
     secondary_secret: "YOUR_SECONDARY_KEY"
@@ -72,7 +72,7 @@ end
 Add the test_resource in order to test your endpoints once the plugs or pipelines are defined:
 
 ```elixir
-config :btrz_auth, :token,
+config :btrz_ex_auth_api, :token,
     issuer: "your-issuer",
     main_secret: "YOUR_MAIN_KEY",
     secondary_secret: "YOUR_SECONDARY_KEY"

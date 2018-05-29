@@ -1,8 +1,9 @@
 defmodule BtrzAuth.Services.Accounts do
   def get_application(api_key, path \\ "application") do
-    url = "#{Application.get_env(:btrz_auth, :services)[:accounts_url]}#{path}"
+    url = "#{Application.get_env(:btrz_ex_auth_api, :services)[:accounts_url]}#{path}"
 
-    {:ok, token, _claims} = BtrzAuth.internal_auth_token(Application.get_env(:btrz_auth, :token))
+    {:ok, token, _claims} =
+      BtrzAuth.internal_auth_token(Application.get_env(:btrz_ex_auth_api, :token))
 
     headers = [
       Authorization: "Bearer #{token}",

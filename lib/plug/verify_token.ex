@@ -67,14 +67,14 @@ if Code.ensure_loaded?(Plug) do
         Keyword.put(
           opts,
           :main_secret,
-          Keyword.get(Application.get_env(:btrz_auth, :token, []), :main_secret, "")
+          Keyword.get(Application.get_env(:btrz_ex_auth_api, :token, []), :main_secret, "")
         )
 
       opts =
         Keyword.put(
           opts,
           :secondary_secret,
-          Keyword.get(Application.get_env(:btrz_auth, :token, []), :secondary_secret, "")
+          Keyword.get(Application.get_env(:btrz_ex_auth_api, :token, []), :secondary_secret, "")
         )
 
       realm = Keyword.get(opts, :realm, "Bearer")
