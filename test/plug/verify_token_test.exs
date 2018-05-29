@@ -94,7 +94,9 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:test_resource]["privateKey"]
-      {:ok, token, _claims} = BtrzAuth.GuardianUser.encode_and_sign(@resource, %{}, secret: secret)
+
+      {:ok, token, _claims} =
+        BtrzAuth.GuardianUser.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn

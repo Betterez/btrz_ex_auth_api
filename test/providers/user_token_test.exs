@@ -14,7 +14,10 @@ defmodule BtrzAuth.Providers.UserTokenTest do
   test "get_token token decoded using a user resource and 'btrz-api-accounts' issuer" do
     secret = "my_secret"
     {:ok, token, _} = UserToken.get_token(@user, secret: @secret)
-    {:ok, resource, claims} = BtrzAuth.GuardianUser.resource_from_token(token, %{}, secret: @secret)
+
+    {:ok, resource, claims} =
+      BtrzAuth.GuardianUser.resource_from_token(token, %{}, secret: @secret)
+
     assert resource == @user
     assert claims["iss"] == "btrz-api-accounts"
   end

@@ -10,7 +10,14 @@ defmodule BtrzAuth.Providers.InternalTokenTest do
 
   test "get_token token decoded using %{} as resource and 'btrz-api-client' issuer" do
     {:ok, token, _} = InternalToken.get_token(Application.get_env(:btrz_auth, :token))
-    {:ok, resource, claims} = BtrzAuth.Guardian.resource_from_token(token, %{}, secret: Application.get_env(:btrz_auth, :token)[:main_secret])
+
+    {:ok, resource, claims} =
+      BtrzAuth.Guardian.resource_from_token(
+        token,
+        %{},
+        secret: Application.get_env(:btrz_auth, :token)[:main_secret]
+      )
+
     assert resource == %{}
     assert claims["iss"] == "btrz-api-client"
   end
