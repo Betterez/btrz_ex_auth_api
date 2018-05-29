@@ -2,7 +2,7 @@ if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyApiKey do
     @moduledoc """
 
-    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token and saving the resource in `conn.private[:auth_user]`.
+    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token and saving the resource in `conn.private[:application]`.
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
     It requires an error handler as `error_handler`.
@@ -61,7 +61,7 @@ if Code.ensure_loaded?(Plug) do
           if Mix.env() === :test do
             # only for test
             Logger.debug("using VerifyApiKey in test mode")
-            conn = put_private(conn, :auth_user, Keyword.get(token_config, :test_resource, %{}))
+            conn = put_private(conn, :application, Keyword.get(token_config, :test_resource, %{}))
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
             case Accounts.get_application(api_key) do
@@ -72,7 +72,7 @@ if Code.ensure_loaded?(Plug) do
               {:ok, result} ->
                 Logger.info("account found for the provided api_key: #{api_key}")
                 Logger.debug("passing VerifyApiKey plug..")
-                conn = put_private(conn, :auth_user, result)
+                conn = put_private(conn, :application, result)
                 respond({{:ok, :api_key}, allow_blank, conn, opts})
 
               {:error, error} ->

@@ -29,7 +29,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
     def resource_from_claims(%{"sub" => id}), do: {:ok, %{id: id}}
   end
 
-  @resource %{id: "bobby"}
+  @resource %{"id" => "bobby"}
 
   describe "init/1" do
     test "will use the config keys and default realm" do
@@ -56,7 +56,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       conn =
         :get
         |> conn("/")
-        |> put_private(:auth_user, Keyword.get(token_config, :test_resource, %{}))
+        |> put_private(:application, Keyword.get(token_config, :test_resource, %{}))
 
       {:ok, %{conn: conn, impl: impl, error_handler: error_handler, token_config: token_config}}
     end
@@ -94,7 +94,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       opts = VerifyToken.init()
 
       secret = ctx.token_config[:test_resource]["privateKey"]
-      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+      {:ok, token, _claims} = BtrzAuth.GuardianUser.encode_and_sign(@resource, %{}, secret: secret)
 
       conn =
         ctx.conn
@@ -102,6 +102,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
         |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: ctx.error_handler])
 
       refute conn.status == 401
+      assert conn.private[:user] == @resource
     end
 
     test "will return 401 if token not found", ctx do

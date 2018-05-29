@@ -1,11 +1,10 @@
 defmodule BtrzAuth.Pipeline.ApiKeySecured do
   @moduledoc """
 
-  This pipeline will check the x-api-key header is sent and load the implemented resource in `conn.private[:auth_user]`.
+  This pipeline will check the x-api-key header is sent and load the implemented resource in `conn.private[:application]`.
   """
   use Guardian.Plug.Pipeline,
     otp_app: :btrz_auth,
-    module: BtrzAuth.Guardian,
     error_handler: BtrzAuth.AuthErrorHandler
 
   plug(BtrzAuth.Plug.VerifyApiKey)

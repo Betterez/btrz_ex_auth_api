@@ -126,6 +126,7 @@ if Code.ensure_loaded?(Plug) do
         Logger.debug("passing VerifyToken plug..")
 
         conn
+        |> put_private(:user, claims["sub"])
         |> GPlug.put_current_token(token, key: key)
         |> GPlug.put_current_claims(claims, key: key)
       else
@@ -155,14 +156,14 @@ if Code.ensure_loaded?(Plug) do
             Keyword.t()
           ) :: {:ok, Guardian.Token.claims()} | {:error, any}
     defp decode_and_verify(conn, token, claims_to_check, opts) do
-      opts = Keyword.put(opts, :secret, conn.private.auth_user["privateKey"])
+      opts = Keyword.put(opts, :secret, conn.private.application["privateKey"])
 
-      case Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts) do
+      case Guardian.decode_and_verify(BtrzAuth.GuardianUser, token, claims_to_check, opts) do
         {:ok, claims} ->
           {:ok, claims}
 
         _ ->
-          Logger.debug("token not valid, checking if is internal token..")
+          Logger.debug("token not valid as user token, checking if it is an internal token..")
           opts = Keyword.put(opts, :secret, opts[:main_secret])
           opts = Keyword.put(opts, :verify_issuer, true)
 

@@ -1,6 +1,6 @@
-defmodule BtrzAuth.Providers.InternalAuth do
+defmodule BtrzAuth.Providers.InternalToken do
   @moduledoc """
-  InternalAuthToken will generate tokens for internal services authentication
+  InternalTokenToken will generate tokens for internal services authentication
   """
 
   @doc """
