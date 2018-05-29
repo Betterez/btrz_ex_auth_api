@@ -5,6 +5,10 @@
 Elixir package for authentication handling using Plug and Guardian (JWT).
 It supports `X-API-KEY` token and `Authorization` tokens, for external users or internal API communication.
 
+## Documentation
+
+API documentation at HexDocs [https://hexdocs.pm/btrz_ex_auth_api](https://hexdocs.pm/btrz_ex_auth_api)
+
 ## Installation
 
 If [available in Hex](https://hex.pm/docs/publish), the package can be installed
@@ -12,9 +16,7 @@ by adding `btrz_auth` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [
-    {:btrz_auth, "~> 0.3.0"}
-  ]
+  [{:btrz_auth, "~> 0.5.0"}]
 end
 ```
 
