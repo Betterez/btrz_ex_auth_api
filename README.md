@@ -16,7 +16,7 @@ by adding `btrz_auth` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
-  [{:btrz_ex_auth_api, "~> 0.5.0"}]
+  [{:btrz_ex_auth_api, "~> 0.6.0"}]
 end
 ```
 
