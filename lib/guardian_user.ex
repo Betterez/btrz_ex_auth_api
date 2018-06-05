@@ -10,7 +10,7 @@ defmodule BtrzAuth.GuardianUser do
     # how it being used on `resource_from_claims/1` function.
     # A unique `id` is a good subject, a non-unique email address
     # is a poor subject.
-    {:ok, resource}
+    {:ok, resource["id"]}
   end
 
   # def subject_for_token(_, _) do
