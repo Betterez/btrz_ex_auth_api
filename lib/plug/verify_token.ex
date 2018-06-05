@@ -124,7 +124,7 @@ if Code.ensure_loaded?(Plug) do
            key <- storage_key(conn, opts),
            {:ok, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
         Logger.debug("passing VerifyToken plug..")
-        IO.inspect claims
+
         conn
         |> put_private(:user_id, claims["sub"])
         |> GPlug.put_current_token(token, key: key)
