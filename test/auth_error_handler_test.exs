@@ -5,7 +5,7 @@ defmodule BtrzAuth.AuthErrorHandlerTest do
   alias BtrzAuth.AuthErrorHandler
 
   describe "#auth_error" do
-    test "sends 401 resp with {message: <type>} json as body" do
+    test "sends 401 resp with {error, reason} json as body" do
       conn = conn(:get, "/test")
       conn = AuthErrorHandler.auth_error(conn, {:unauthorized, :x_not_found}, nil)
 
