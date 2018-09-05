@@ -110,6 +110,7 @@ if Code.ensure_loaded?(Plug) do
           conn
           |> GPlug.put_current_token("test-token")
           |> GPlug.put_current_claims(%{})
+          |> put_private(:btrz_token_type, :test)
 
         {:ok, _local_test_token} ->
           Logger.debug("using local test mode")
