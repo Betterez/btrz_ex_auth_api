@@ -4,12 +4,17 @@ defmodule BtrzAuth.Providers.UserToken do
   """
 
   @doc """
-  Gets a token for the user with the options
+  Gets a token for the user with the options.
+
+  Options may include:
+   * `secret` - secret key for generating your token.
+   * `claims` - custom claims for your token. Default %{}.
   """
   @spec get_token(Map.t(), Keyword.t()) ::
           {:ok, Guardian.Token.token(), Guardian.Token.claims()} | {:error, any}
   def get_token(user, opts) do
     secret = Keyword.get(opts, :secret, "")
-    BtrzAuth.GuardianUser.encode_and_sign(user, %{}, secret: secret, ttl: {2, :minutes})
+    claims = Keyword.get(opts, :claims, %{})
+    BtrzAuth.GuardianUser.encode_and_sign(user, claims, secret: secret, ttl: {2, :minutes})
   end
 end

@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "0.8.0"
+  @version "0.9.0"
 
   def project do
     [
@@ -18,7 +18,8 @@ defmodule BtrzAuth.MixProject do
       docs: docs(),
       package: package(),
       aliases: aliases(),
-      test_coverage: [tool: ExCoveralls]
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [coveralls: :test]
     ]
   end
 
@@ -53,7 +54,7 @@ defmodule BtrzAuth.MixProject do
 
   defp aliases do
     [
-      test: ["coveralls"]
+      test: ["coveralls.html"]
     ]
   end
 

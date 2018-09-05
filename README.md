@@ -34,22 +34,27 @@ You can use the [Guardian Plugs](https://hexdocs.pm/guardian/readme.html#plugs) 
 
 #### `BtrzAuth.Plug.VerifyApiKey`
 
-Looks for the header `X_API_KEY` and verify the account, saving it into `conn.private[:application]`.
+Looks for the header or querystring `x-api-key` and verify the account, saving it into `conn.private[:application]`.
 
 #### `BtrzAuth.Plug.VerifyToken`
 
 It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorization` header and verify it using first the account's private key loading the user id in the `conn.private[:user_id], if not valid, then main and secondary secrets provided by your app for internal token cases.
+
+#### `BtrzAuth.Plug.VerifyPremium`
+
+Looks for and validates that the passed `keys` features are present in the saved claims under `conn.private` using `BtrzAuth.Guardian.Plug.current_claims(conn)`.
+
 ## Pipelines
 
 ### BtrzAuth.Pipeline.ApiKeySecured
 
-This pipeline will check the x-api-key header is sent and load the implemented resource in `conn.private[:application]`.
+This pipeline will check the `x-api-key` header or querystring is sent and load the implemented resource in `conn.private[:application]`.
 
 * plug BtrzAuth.Plug.VerifyApiKey
 
 ### BtrzAuth.Pipeline.TokenSecured
 
-This pipeline will check the x-api-key header loading the application data in `conn.private[:application]` and also the token with the private key or the configured main and secondary secret keys in case the token could be an internal one, then ensure authenticated and load the implemented resource id in the `conn.private[:user_id]`.
+This pipeline will check the `x-api-key` header loading the application data in `conn.private[:application]` and also the token with the private key or the configured main and secondary secret keys in case the token could be an internal one, then ensure authenticated and load the implemented resource id in the `conn.private[:user_id]`.
 
 * plug BtrzAuth.Plug.VerifyApiKey
 * plug BtrzAuth.Plug.VerifyToken

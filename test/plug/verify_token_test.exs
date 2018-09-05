@@ -43,12 +43,13 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
     end
 
     test "will use the config keys and realm" do
-      opts = VerifyToken.init(realm: "test")
+      opts = VerifyToken.init(realm: "test", any: true)
       assert opts[:main_secret] == Application.get_env(:btrz_ex_auth_api, :token)[:main_secret]
 
       assert opts[:secondary_secret] ==
                Application.get_env(:btrz_ex_auth_api, :token)[:secondary_secret]
 
+      assert opts[:any] == true
       assert opts[:realm_reg] == ~r/test:? +(.*)$/i
     end
   end
@@ -128,6 +129,47 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
       secret = "not_valid"
       {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+
+      conn =
+        ctx.conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: ctx.error_handler])
+
+      assert conn.status == 401
+    end
+
+    test "will be authenticated with user token and premium claim",
+         ctx do
+      valid_claims = %{webhooks: true, loyalty: false}
+      opts = VerifyToken.init(claims: %{webhooks: true})
+
+      secret = ctx.token_config[:test_resource]["privateKey"]
+
+      {:ok, token, _claims} =
+        BtrzAuth.GuardianUser.encode_and_sign(@resource, valid_claims, secret: secret)
+
+      conn =
+        ctx.conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: ctx.error_handler])
+
+      refute conn.status == 401
+      assert conn.private[:user_id] == @resource["id"]
+    end
+
+    test "will return 401 if the user token is not validated with the premium claim",
+         ctx do
+      valid_claims = %{webhooks: true, loyalty: false}
+      opts = VerifyToken.init(claims: valid_claims)
+
+      secret = ctx.token_config[:test_resource]["privateKey"]
+
+      {:ok, token, _claims} =
+        BtrzAuth.GuardianUser.encode_and_sign(
+          @resource,
+          %{loyalty: false, another: true},
+          secret: secret
+        )
 
       conn =
         ctx.conn

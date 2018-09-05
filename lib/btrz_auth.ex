@@ -22,14 +22,13 @@ defmodule BtrzAuth do
   end
 
   @doc """
-  Generates an user token using the configuration ecret keys.
-
-  It will return a token using the the user and the issuer passed by configuration and `%{}` claims.
+  Generates an user token using the configuration secret keys.
 
   Options:
 
     * `issuer` - the issuer of the token
     * `secret` - secret key
+    * `claims` - custom claims for your token. Default %{}.
 
   """
   @spec user_auth_token(Map.t(), Keyword.t()) ::

@@ -2,12 +2,9 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
   @moduledoc false
 
   use Plug.Test
+  use ExUnit.Case, async: true
 
   alias BtrzAuth.Plug.VerifyApiKey
-  alias Guardian.Plug, as: GPlug
-  alias GPlug.Pipeline
-
-  use ExUnit.Case, async: true
 
   @test_api_key "test-token"
 
@@ -19,6 +16,14 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
     def auth_error(conn, {type, reason}, _opts) do
       body = inspect({type, reason})
       send_resp(conn, 401, body)
+    end
+  end
+
+  describe "init/1" do
+    test "will use the config keys" do
+      opts = [any: "value"]
+      result_opts = VerifyApiKey.init(opts)
+      assert result_opts == opts
     end
   end
 
