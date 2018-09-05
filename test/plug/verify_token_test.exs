@@ -54,7 +54,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
     end
   end
 
-  describe "call/2 using internal token" do
+  describe "call/2" do
     setup do
       token_config = Application.get_env(:btrz_ex_auth_api, :token)
       impl = __MODULE__.Impl
@@ -80,6 +80,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
         |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: ctx.error_handler])
 
       refute conn.status == 401
+      assert conn.private[:btrz_token_type] == :internal
     end
 
     test "will use the secondary key and will be authenticated", ctx do
@@ -94,6 +95,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
         |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: ctx.error_handler])
 
       refute conn.status == 401
+      assert conn.private[:btrz_token_type] == :internal
     end
 
     test "will use the user token with the private key (not internal) and will be authenticated",
@@ -112,6 +114,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
       refute conn.status == 401
       assert conn.private[:user_id] == @resource["id"]
+      assert conn.private[:btrz_token_type] == :user
     end
 
     test "will return 401 if token not found", ctx do
@@ -155,6 +158,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
       refute conn.status == 401
       assert conn.private[:user_id] == @resource["id"]
+      assert conn.private[:btrz_token_type] == :user
     end
 
     test "will return 401 if the user token is not validated with the premium claim",

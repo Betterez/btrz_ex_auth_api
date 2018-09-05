@@ -122,11 +122,12 @@ if Code.ensure_loaded?(Plug) do
            {:ok, token} <- fetch_token_from_header(conn, opts),
            claims_to_check <- Keyword.get(opts, :claims, %{}),
            key <- storage_key(conn, opts),
-           {:ok, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
+           {:ok, btrz_token_type, claims} <- decode_and_verify(conn, token, claims_to_check, opts) do
         Logger.debug("passing VerifyToken plug..")
 
         conn
         |> put_private(:user_id, claims["sub"])
+        |> put_private(:btrz_token_type, btrz_token_type)
         |> GPlug.put_current_token(token, key: key)
         |> GPlug.put_current_claims(claims, key: key)
       else
@@ -154,13 +155,13 @@ if Code.ensure_loaded?(Plug) do
             Guardian.Token.token(),
             Guardian.Token.claims(),
             Keyword.t()
-          ) :: {:ok, Guardian.Token.claims()} | {:error, any}
+          ) :: {:ok, BtrzTokenType.t(), Guardian.Token.claims()} | {:error, any}
     defp decode_and_verify(conn, token, claims_to_check, opts) do
       opts = Keyword.put(opts, :secret, conn.private.application["privateKey"])
 
       case Guardian.decode_and_verify(BtrzAuth.GuardianUser, token, claims_to_check, opts) do
         {:ok, claims} ->
-          {:ok, claims}
+          {:ok, :user, claims}
 
         _ ->
           Logger.debug("token not valid as user token, checking if it is an internal token..")
@@ -169,7 +170,7 @@ if Code.ensure_loaded?(Plug) do
 
           case Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts) do
             {:ok, claims} ->
-              {:ok, claims}
+              {:ok, :internal, claims}
 
             _ ->
               Logger.debug(
@@ -177,7 +178,15 @@ if Code.ensure_loaded?(Plug) do
               )
 
               opts = Keyword.put(opts, :secret, opts[:secondary_secret])
-              Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts)
+
+              case Guardian.decode_and_verify(BtrzAuth.Guardian, token, claims_to_check, opts) do
+                {:ok, claims} ->
+                  {:ok, :internal, claims}
+
+                {:error, reason} ->
+                  Logger.debug("secondary secret is not valid for internal auth")
+                  {:error, reason}
+              end
           end
       end
     end

@@ -41,6 +41,8 @@ if Code.ensure_loaded?(Plug) do
     end
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
+    def call(%Plug.Conn{private: %{btrz_token_type: :internal}} = conn, opts), do: conn
+
     def call(conn, opts) do
       Logger.debug("accessing VerifyPremium plug with opts: #{inspect(opts)}..")
 

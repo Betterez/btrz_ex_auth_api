@@ -38,6 +38,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
       conn =
         :get
         |> conn("/")
+        |> put_private(:btrz_token_type, :user)
 
       {:ok, %{conn: conn, error_handler: error_handler}}
     end
@@ -88,6 +89,19 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       assert conn.status == 401
+    end
+
+    test "with btrz_token_type :internal always will pass", ctx do
+      keys = [keys: [:great_feature, :admin]]
+      opts = VerifyPremium.init(keys)
+
+      conn =
+        ctx.conn
+        |> put_private(:guardian_default_claims, %{premium: [:a]})
+        |> put_private(:btrz_token_type, :internal)
+        |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
+
+      refute conn.status == 401
     end
   end
 end
