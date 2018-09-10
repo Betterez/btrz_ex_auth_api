@@ -41,8 +41,8 @@ if Code.ensure_loaded?(Plug) do
     end
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
-    def call(%Plug.Conn{private: %{btrz_token_type: :internal}} = conn, opts), do: conn
-    def call(%Plug.Conn{private: %{btrz_token_type: :test}} = conn, opts), do: conn
+    def call(%Plug.Conn{private: %{btrz_token_type: :internal}} = conn, _opts), do: conn
+    def call(%Plug.Conn{private: %{btrz_token_type: :test}} = conn, _opts), do: conn
 
     def call(conn, opts) do
       Logger.debug("accessing VerifyPremium plug with opts: #{inspect(opts)}..")
@@ -53,7 +53,8 @@ if Code.ensure_loaded?(Plug) do
 
         claims ->
           claims
-          |> Map.get(:premium, [])
+          |> Map.get("premium", [])
+          |> Enum.map(fn x -> String.to_atom(x) end)
           |> validate_premium_keys(conn, opts)
       end
     end

@@ -49,7 +49,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:great_feature]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["great_feature"]})
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       refute conn.status == 401
@@ -61,7 +61,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:a, :great_feature, :b, :c]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["a", "great_feature", "b", "c"]})
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       refute conn.status == 401
@@ -73,7 +73,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:a, :great_feature, :b, :c]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["a", "great_feature", "b", "c"]})
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       assert conn.status == 401
@@ -85,7 +85,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:a, :great_feature, :b, :c]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["a", "great_feature", "b", "c"]})
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       assert conn.status == 401
@@ -97,7 +97,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:a]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["a"]})
         |> put_private(:btrz_token_type, :internal)
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
@@ -110,7 +110,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
 
       conn =
         ctx.conn
-        |> put_private(:guardian_default_claims, %{premium: [:a]})
+        |> put_private(:guardian_default_claims, %{"premium" => ["a"]})
         |> put_private(:btrz_token_type, :test)
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
