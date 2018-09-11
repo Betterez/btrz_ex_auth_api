@@ -26,7 +26,7 @@ defmodule BtrzAuth.Guardian do
     {:ok, resource}
   end
 
-  def resource_from_claims(_claims) do
-    {:error, :reason_for_error}
-  end
+  # def resource_from_claims(_claims) do
+  #   {:error, :reason_for_error}
+  # end
 end

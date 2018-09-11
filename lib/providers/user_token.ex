@@ -15,6 +15,6 @@ defmodule BtrzAuth.Providers.UserToken do
   def get_token(user, opts) do
     secret = Keyword.get(opts, :secret, "")
     claims = Keyword.get(opts, :claims, %{})
-    BtrzAuth.GuardianUser.encode_and_sign(user, claims, secret: secret, ttl: {2, :minutes})
+    BtrzAuth.GuardianUser.encode_and_sign(user, claims, secret: secret, ttl: {2, :days})
   end
 end
