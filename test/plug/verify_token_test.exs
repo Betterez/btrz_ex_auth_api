@@ -105,7 +105,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       secret = ctx.token_config[:test_resource]["privateKey"]
 
       {:ok, token, _claims} =
-        BtrzAuth.GuardianUser.encode_and_sign(@resource, %{}, secret: secret)
+        BtrzAuth.GuardianUser.encode_and_sign(@resource, %{"id" => @resource["id"]}, secret: secret)
 
       conn =
         ctx.conn
@@ -143,7 +143,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
     test "will be authenticated with user token and premium claim",
          ctx do
-      valid_claims = %{webhooks: true, loyalty: false}
+      valid_claims = %{webhooks: true, loyalty: false, id: @resource["id"]}
       opts = VerifyToken.init(claims: %{webhooks: true})
 
       secret = ctx.token_config[:test_resource]["privateKey"]

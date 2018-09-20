@@ -127,7 +127,7 @@ if Code.ensure_loaded?(Plug) do
         Logger.debug("passing VerifyToken plug..")
 
         conn
-        |> put_private(:user_id, claims["sub"])
+        |> put_private(:user_id, claims["id"])
         |> put_private(:btrz_token_type, btrz_token_type)
         |> GPlug.put_current_token(token, key: key)
         |> GPlug.put_current_claims(claims, key: key)
