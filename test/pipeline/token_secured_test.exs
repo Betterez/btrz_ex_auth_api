@@ -26,7 +26,7 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
   end
 
   @resource %{"id" => "2dSWOd35475656342wsdf23qwq"}
-  @valid_claim %{}
+  @valid_claim %{"id" => "2dSWOd35475656342wsdf23qwq"}
 
   setup do
     token_config = Application.get_env(:btrz_ex_auth_api, :token)
@@ -65,7 +65,7 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
     {:ok, token, _claims} =
       BtrzAuth.GuardianUser.encode_and_sign(
         @resource,
-        %{"custom_claim" => "houh"},
+        %{"custom_claim" => "houh", "id" => @resource["id"]},
         secret: secret
       )
 
