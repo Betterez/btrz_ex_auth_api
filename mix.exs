@@ -80,7 +80,6 @@ defmodule BtrzAuth.MixProject do
     ]
   end
 
-
   defp aliases do
     [
       test: ["coveralls.html"]
