@@ -73,6 +73,23 @@ scope "/" do
 end
 ```
 
+## Phoenix Channels
+For Phoenix socket auth we wrap the `Guardian.Phoenix.Socket` module in order to use our `internal-token`, you might add to your `user_socket.ex`:
+
+```elixir
+def connect(%{"token" => token}, socket) do
+  case BtrzAuth.Phoenix.SocketAuth.authenticate(socket, token) do
+    {:ok, authed_socket} ->
+      {:ok, authed_socket}
+    {:error, _} -> :error
+  end
+end
+
+def connect(_params, _socket) do
+  :error
+end
+```
+
 ## Integration tests in your API
 Add the test_resource in order to test your endpoints once the plugs or pipelines are defined:
 
