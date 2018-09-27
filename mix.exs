@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "0.10.0"
+  @version "0.10.1"
 
   def project do
     [
@@ -48,9 +48,38 @@ defmodule BtrzAuth.MixProject do
       main: "BtrzAuth",
       source_ref: "v#{@version}",
       source_url: @github_url,
-      extras: ["README.md"]
+      extras: ["README.md"],
+      groups_for_modules: groups_for_modules()
     ]
   end
+
+  defp groups_for_modules do
+    # Ungrouped:
+    # - BtrzAuth
+
+    [
+      TokenProviders: [
+        BtrzAuth.Providers.InternalToken,
+        BtrzAuth.Providers.UserToken
+      ],
+      Plugs: [
+        BtrzAuth.Plug.VerifyApiKey,
+        BtrzAuth.Plug.VerifyPremium,
+        BtrzAuth.Plug.VerifyToken
+      ],
+      Pipelines: [
+        BtrzAuth.Pipeline.ApiKeySecured,
+        BtrzAuth.Pipeline.TokenSecured
+      ],
+      Phoenix: [
+        BtrzAuth.Phoenix.SocketAuth
+      ],
+      Services: [
+        BtrzAuth.Services.Accounts
+      ]
+    ]
+  end
+
 
   defp aliases do
     [

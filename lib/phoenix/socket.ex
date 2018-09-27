@@ -1,5 +1,5 @@
 defmodule BtrzAuth.Phoenix.Socket do
-  @doc false
+  @moduledoc false
   use Guardian,
     otp_app: :btrz_ex_auth_api,
     issuer: "btrz-api-client"
