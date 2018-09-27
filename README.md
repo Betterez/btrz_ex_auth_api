@@ -38,7 +38,7 @@ Looks for the header or querystring `x-api-key` and verify the account, saving i
 
 #### `BtrzAuth.Plug.VerifyToken`
 
-It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorization` header and verify it using first the account's private key loading the user id in the `conn.private[:user_id], if not valid, then main and secondary secrets provided by your app for internal token cases.
+It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorization` header and verify it using first the account's private key loading the user id in the `conn.private[:user_id]`, if not valid, then main and secondary secrets provided by your app for internal token cases.
 
 #### `BtrzAuth.Plug.VerifyPremium`
 
