@@ -82,7 +82,7 @@ if Code.ensure_loaded?(Plug) do
     defp respond_error(conn, reason, opts) do
       conn
       |> Pipeline.fetch_error_handler!(opts)
-      |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
+      |> apply(:auth_error, [conn, {:unauthorized, reason}, opts])
       |> halt()
     end
   end

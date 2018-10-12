@@ -77,6 +77,7 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
         |> VerifyPremium.call(opts ++ [error_handler: ctx.error_handler])
 
       assert conn.status == 401
+      assert conn.resp_body == "{:unauthorized, :premium_not_verified}"
     end
 
     test "will return 401 if is valid one of two keys", ctx do
