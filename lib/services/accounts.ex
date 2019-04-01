@@ -13,7 +13,7 @@ defmodule BtrzAuth.Services.Accounts do
 
     case HTTPoison.get(url, headers) do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        body = Poison.decode!(body)
+        body = Jason.decode!(body)
 
         if Map.has_key?(body, "application") do
           {:ok, body["application"]}

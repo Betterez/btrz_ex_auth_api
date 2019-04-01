@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "0.10.5"
+  @version "0.10.6"
 
   def project do
     [
@@ -38,7 +38,7 @@ defmodule BtrzAuth.MixProject do
       {:guardian, "~> 1.0"},
       {:excoveralls, "~> 0.8", only: :test},
       {:httpoison, "~> 1.0"},
-      {:poison, "~> 3.1"},
+      {:jason, "~> 1.1"},
       {:junit_formatter, "~> 2.1", only: :test}
     ]
   end

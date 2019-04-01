@@ -10,7 +10,7 @@ defmodule BtrzAuth.AuthErrorHandlerTest do
       conn = AuthErrorHandler.auth_error(conn, {:unauthorized, :x_not_found}, nil)
 
       assert conn.status == 401
-      assert conn.resp_body == Poison.encode!(%{error: "unauthorized", reason: "x_not_found"})
+      assert conn.resp_body == Jason.encode!(%{error: "unauthorized", reason: "x_not_found"})
     end
   end
 end
