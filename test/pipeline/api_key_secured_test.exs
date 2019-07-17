@@ -25,6 +25,10 @@ defmodule BtrzAuth.Pipeline.ApiKeySecuredTest do
     def resource_from_claims(%{"sub" => id}), do: {:ok, %{id: id}}
   end
 
+  defp underscore_data(data) do
+    Enum.reduce(data, %{}, fn {key, val}, acc -> Map.put(acc, Macro.underscore(key), val) end)
+  end
+
   setup do
     token_config = Application.get_env(:btrz_ex_auth_api, :token)
     impl = __MODULE__.Impl
@@ -45,7 +49,7 @@ defmodule BtrzAuth.Pipeline.ApiKeySecuredTest do
       |> ApiKeySecured.call(module: ctx.impl, error_handler: ctx.error_handler)
 
     refute conn.status == 401
-    assert conn.private[:application] == Keyword.get(ctx.token_config, :test_resource)
+    assert conn.private[:account] == Keyword.get(ctx.token_config, :test_resource) |> underscore_data()
   end
 
   test "will return 401 if x-api-key header was not set",

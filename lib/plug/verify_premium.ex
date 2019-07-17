@@ -2,7 +2,8 @@ if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyPremium do
     @moduledoc """
 
-    Looks for and validates that the passed `keys` features are present in the saved claims under `conn.private` using `BtrzAuth.Guardian.Plug.current_claims(conn)`.
+    Looks for and validates that the passed `keys` features are present in the account data under `conn.private.account["premium"]`
+    saved by `BtrzAuth.Plug.VerifyApiKey` (the order of the plugs is very important!)
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
     It requires an error handler as `error_handler`.
@@ -42,48 +43,34 @@ if Code.ensure_loaded?(Plug) do
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
     def call(%Plug.Conn{private: %{btrz_token_type: :internal}} = conn, _opts), do: conn
-    def call(%Plug.Conn{private: %{btrz_token_type: :test}} = conn, _opts), do: conn
 
     def call(conn, opts) do
       Logger.debug("accessing VerifyPremium plug with opts: #{inspect(opts)}..")
 
-      case GPlug.current_claims(conn) do
-        nil ->
+      with account <- Map.get(conn.private, :account),
+        premium_keys <- get_premium_keys(account),
+        true <- are_valid_premium_keys?(premium_keys, opts) do
           conn
-
-        claims ->
-          claims
-          |> Map.get("premium", [])
-          |> Enum.map(fn x -> String.to_atom(x) end)
-          |> validate_premium_keys(conn, opts)
-      end
+        else
+          _ ->
+            conn
+            |> Pipeline.fetch_error_handler!(opts)
+            |> apply(:auth_error, [conn, {:unauthorized, :premium_not_verified}, opts])
+            |> halt()
+        end
     end
 
+    defp get_premium_keys(%{"premium" => premium}) do
+      premium |> Enum.map(fn x -> String.to_atom(x) end)
+    end
+    defp get_premium_keys(_), do: []
+
     @doc false
-    @spec validate_premium_keys(List.t(), Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
-    defp validate_premium_keys(claims, conn, opts) do
+    @spec are_valid_premium_keys?(List.t(), Keyword.t()) :: Boolean.t()
+    defp are_valid_premium_keys?(premium, opts) do
       keys = opts[:keys]
-      diff_length = difference(claims, keys) |> length()
-
-      if length(claims) === diff_length + length(keys) do
-        conn
-      else
-        respond_error(conn, :premium_not_verified, opts)
-      end
-    end
-
-    @doc false
-    defp difference(list1, list2) do
-      list1 -- list2
-    end
-
-    @doc false
-    # @spec response_error(Plug.Conn.t(), any, Keyword.t()) :: Plug.Conn.t()
-    defp respond_error(conn, reason, opts) do
-      conn
-      |> Pipeline.fetch_error_handler!(opts)
-      |> apply(:auth_error, [conn, {:unauthorized, reason}, opts])
-      |> halt()
+      diff = premium -- keys
+      length(premium) === length(diff) + length(keys)
     end
   end
 end

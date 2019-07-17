@@ -37,14 +37,14 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
       :get
       |> conn("/")
       |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
-      |> put_private(:application, Keyword.get(token_config, :test_resource, %{}))
+      |> put_private(:account, Keyword.get(token_config, :test_resource, %{}))
 
     {:ok, %{conn: conn, impl: impl, error_handler: error_handler, token_config: token_config}}
   end
 
   test "will use the user token and will be authenticated",
        ctx do
-    secret = ctx.token_config[:test_resource]["privateKey"]
+    secret = ctx.token_config[:test_resource]["private_key"]
 
     {:ok, token, _claims} =
       BtrzAuth.GuardianUser.encode_and_sign(@resource, @valid_claim, secret: secret)
@@ -60,7 +60,7 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
 
   test "will be authenticated with any claim",
        ctx do
-    secret = ctx.token_config[:test_resource]["privateKey"]
+    secret = ctx.token_config[:test_resource]["private_key"]
 
     {:ok, token, _claims} =
       BtrzAuth.GuardianUser.encode_and_sign(
@@ -80,7 +80,7 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
 
   test "will return 401 if x-api-key header was not set",
        ctx do
-    secret = ctx.token_config[:test_resource]["privateKey"]
+    secret = ctx.token_config[:test_resource]["private_key"]
 
     {:ok, token, _claims} =
       BtrzAuth.GuardianUser.encode_and_sign(@resource, @valid_claim, secret: secret)

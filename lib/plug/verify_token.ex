@@ -158,7 +158,7 @@ if Code.ensure_loaded?(Plug) do
             Keyword.t()
           ) :: {:ok, BtrzTokenType.t(), Guardian.Token.claims()} | {:error, any}
     defp decode_and_verify(conn, token, claims_to_check, opts) do
-      opts = Keyword.put(opts, :secret, conn.private.application["privateKey"])
+      opts = Keyword.put(opts, :secret, conn.private.account["private_key"])
 
       case Guardian.decode_and_verify(BtrzAuth.GuardianUser, token, claims_to_check, opts) do
         {:ok, claims} ->

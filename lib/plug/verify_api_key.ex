@@ -2,7 +2,7 @@ if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyApiKey do
     @moduledoc """
 
-    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token and saving the resource in `conn.private[:application]`.
+    Looks for and validates a token found in the `x-api-key` header requesting the accounts service to verify the token and saving the resource in `conn.private[:account]`.
 
     This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
     It requires an error handler as `error_handler`.
@@ -61,10 +61,19 @@ if Code.ensure_loaded?(Plug) do
           if Mix.env() === :test do
             # only for test
             Logger.debug("using VerifyApiKey in test mode")
-            conn = put_private(conn, :application, Keyword.get(token_config, :test_resource, %{}))
+
+            account = Map.get(conn.private, :account, %{})
+
+            merged_account =
+              Keyword.get(token_config, :test_resource, %{})
+              |> underscore_data()
+              |> Map.merge(account)
+
+            conn = put_private(conn, :account, merged_account)
+
             respond({{:ok, :api_key}, allow_blank, conn, opts})
           else
-            case Accounts.get_application(api_key) do
+            case Accounts.get_account_auth_info(api_key) do
               {:ok, result} when result == %{} ->
                 Logger.error("account not found for the provided api_key: #{api_key}")
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
@@ -72,7 +81,7 @@ if Code.ensure_loaded?(Plug) do
               {:ok, result} ->
                 Logger.info("account found for the provided api_key: #{api_key}")
                 Logger.debug("passing VerifyApiKey plug..")
-                conn = put_private(conn, :application, result)
+                conn = put_private(conn, :account, underscore_data(result))
                 respond({{:ok, :api_key}, allow_blank, conn, opts})
 
               {:error, error} ->
@@ -86,6 +95,10 @@ if Code.ensure_loaded?(Plug) do
             end
           end
       end
+    end
+
+    defp underscore_data(data) do
+      Enum.reduce(data, %{}, fn {key, val}, acc -> Map.put(acc, Macro.underscore(key), val) end)
     end
 
     defp get_api_key(conn, :header), do: get_api_key_from_header(conn)
