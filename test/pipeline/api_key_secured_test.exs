@@ -49,7 +49,9 @@ defmodule BtrzAuth.Pipeline.ApiKeySecuredTest do
       |> ApiKeySecured.call(module: ctx.impl, error_handler: ctx.error_handler)
 
     refute conn.status == 401
-    assert conn.private[:account] == Keyword.get(ctx.token_config, :test_resource) |> underscore_data()
+
+    assert conn.private[:account] ==
+             Keyword.get(ctx.token_config, :test_resource) |> underscore_data()
   end
 
   test "will return 401 if x-api-key header was not set",

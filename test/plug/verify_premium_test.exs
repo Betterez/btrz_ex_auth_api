@@ -78,7 +78,8 @@ defmodule BtrzAuth.Plug.VerifyPremiumTest do
       refute conn.status == 401
     end
 
-    test "will return 401 if premium key not found because the account has no premium property", ctx do
+    test "will return 401 if premium key not found because the account has no premium property",
+         ctx do
       keys = [keys: [:z]]
       opts = VerifyPremium.init(keys)
 

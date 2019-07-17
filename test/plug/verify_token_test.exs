@@ -144,7 +144,7 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
       assert conn.status == 401
     end
-    
+
     test "will be authenticated with user token and premium claim",
          ctx do
       valid_claims = %{webhooks: true, loyalty: false, id: @resource["id"]}

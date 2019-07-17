@@ -48,21 +48,22 @@ if Code.ensure_loaded?(Plug) do
       Logger.debug("accessing VerifyPremium plug with opts: #{inspect(opts)}..")
 
       with account <- Map.get(conn.private, :account),
-        premium_keys <- get_premium_keys(account),
-        true <- are_valid_premium_keys?(premium_keys, opts) do
+           premium_keys <- get_premium_keys(account),
+           true <- are_valid_premium_keys?(premium_keys, opts) do
+        conn
+      else
+        _ ->
           conn
-        else
-          _ ->
-            conn
-            |> Pipeline.fetch_error_handler!(opts)
-            |> apply(:auth_error, [conn, {:unauthorized, :premium_not_verified}, opts])
-            |> halt()
-        end
+          |> Pipeline.fetch_error_handler!(opts)
+          |> apply(:auth_error, [conn, {:unauthorized, :premium_not_verified}, opts])
+          |> halt()
+      end
     end
 
     defp get_premium_keys(%{"premium" => premium}) do
       premium |> Enum.map(fn x -> String.to_atom(x) end)
     end
+
     defp get_premium_keys(_), do: []
 
     @doc false
