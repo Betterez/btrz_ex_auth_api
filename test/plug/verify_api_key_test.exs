@@ -9,17 +9,6 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
   @test_api_key "test-token"
   @test_resource Application.get_env(:btrz_ex_auth_api, :token)[:test_resource]
 
-  defmodule Handler do
-    @moduledoc false
-
-    import Plug.Conn
-
-    def auth_error(conn, {type, reason}, _opts) do
-      body = inspect({type, reason})
-      send_resp(conn, 401, body)
-    end
-  end
-
   describe "init/1" do
     test "will use the config keys" do
       opts = [any: "value"]
@@ -128,10 +117,14 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
       conn =
         :get
         |> conn("/?x-api-key=fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call(search_in: :header, error_handler: __MODULE__.Handler)
+        |> VerifyApiKey.call(search_in: :header, error_handler: BtrzAuth.ErrorHandler)
 
       assert conn.status == 401
-      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "error" => "unauthenticated",
+               "reason" => "api_key_not_found"
+             }
     end
 
     test "will search only for x-api-key in query string" do
@@ -139,20 +132,28 @@ defmodule BtrzAuth.Plug.VerifyApiKeyTest do
         :get
         |> conn("/")
         |> put_req_header("x-api-key", "fa413eed-b4ef-4b4c-859b-693aaa31376d")
-        |> VerifyApiKey.call(search_in: :query, error_handler: __MODULE__.Handler)
+        |> VerifyApiKey.call(search_in: :query, error_handler: BtrzAuth.ErrorHandler)
 
       assert conn.status == 401
-      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "error" => "unauthenticated",
+               "reason" => "api_key_not_found"
+             }
     end
 
     test "401 if x-api-key was not passed" do
       conn =
         :get
         |> conn("/")
-        |> VerifyApiKey.call(error_handler: __MODULE__.Handler)
+        |> VerifyApiKey.call(error_handler: BtrzAuth.ErrorHandler)
 
       assert conn.status == 401
-      assert conn.resp_body == "{:unauthenticated, :api_key_not_found}"
+
+      assert Jason.decode!(conn.resp_body) == %{
+               "error" => "unauthenticated",
+               "reason" => "api_key_not_found"
+             }
     end
   end
 end

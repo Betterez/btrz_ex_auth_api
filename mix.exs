@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "1.0.1"
+  @version "1.1.0"
 
   def project do
     [
@@ -65,7 +65,9 @@ defmodule BtrzAuth.MixProject do
       Plugs: [
         BtrzAuth.Plug.VerifyApiKey,
         BtrzAuth.Plug.VerifyPremium,
-        BtrzAuth.Plug.VerifyToken
+        BtrzAuth.Plug.VerifyToken,
+        BtrzAuth.Plug.VerifyProviders,
+        BtrzAuth.Plug.AddPremiumFromProviders
       ],
       Pipelines: [
         BtrzAuth.Pipeline.ApiKeySecured,

@@ -5,17 +5,14 @@ if Code.ensure_loaded?(Plug) do
     Looks for and validates that the passed `keys` features are present in the account data under `conn.private.account["premium"]`
     saved by `BtrzAuth.Plug.VerifyApiKey` (the order of the plugs is very important!)
 
-    This, like all other Guardian plugs, requires a Guardian pipeline to be setup.
-    It requires an error handler as `error_handler`.
+    If the premium keys are not found under `conn.private.account`, the pipeline will be halted and the `conn.resp_body` with:
 
-    These can be set either:
-
-    1. Upstream on the connection with `plug Guardian.Pipeline`
-    2. Upstream on the connection with `Guardian.Pipeline.{put_module, put_error_handler, put_key}`
-    3. Inline with an option of `:module`, `:error_handler`, `:key`
-
-    If the claims are not found, the pipeline will be halted and the error handler will be called with
-    `auth_error(conn, {:premium_not_verified, reason}, opts)`
+    ```elixir
+    %{
+      "error" => "unauthorized",
+      "reason" => "premium_not_verified"
+    }
+    ```
 
     Options:
 
@@ -29,9 +26,6 @@ if Code.ensure_loaded?(Plug) do
     ```
     """
     import Plug.Conn
-
-    alias Guardian.Plug, as: GPlug
-    alias GPlug.Pipeline
 
     require Logger
 
@@ -54,8 +48,7 @@ if Code.ensure_loaded?(Plug) do
       else
         _ ->
           conn
-          |> Pipeline.fetch_error_handler!(opts)
-          |> apply(:auth_error, [conn, {:unauthorized, :premium_not_verified}, opts])
+          |> BtrzAuth.ErrorHandler.auth_error({:unauthorized, :premium_not_verified})
           |> halt()
       end
     end

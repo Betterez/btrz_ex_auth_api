@@ -14,11 +14,11 @@ if Code.ensure_loaded?(Plug) do
     3. Inline with an option of `:module`, `:error_handler`, `:key`
 
     If a token is found but is invalid, the error handler will be called with
-    `auth_error(conn, {:api_key_not_found, reason}, opts)`
+    `auth_error(conn, {:api_key_not_found, reason})`
 
     Once a token has been found, it will be matched against the database using the configured collection and property,
     if not found, the error handler will be called with
-    `auth_error(conn, {:account_not_found, reason}, opts)`
+    `auth_error(conn, {:account_not_found, reason})`
 
     Options:
 
@@ -129,7 +129,7 @@ if Code.ensure_loaded?(Plug) do
     defp respond_error(conn, reason, opts) do
       conn
       |> Pipeline.fetch_error_handler!(opts)
-      |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
+      |> apply(:auth_error, [conn, {:unauthenticated, reason}])
       |> halt()
     end
   end

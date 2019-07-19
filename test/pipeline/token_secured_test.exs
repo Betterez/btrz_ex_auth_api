@@ -9,7 +9,7 @@ defmodule BtrzAuth.Pipeline.TokenSecuredTest do
     @moduledoc false
     import Plug.Conn
 
-    def auth_error(conn, {type, reason}, _opts) do
+    def auth_error(conn, {type, reason}) do
       body = inspect({type, reason})
       send_resp(conn, 401, body)
     end

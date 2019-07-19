@@ -21,7 +21,7 @@ if Code.ensure_loaded?(Plug) do
     3. Inline with an option of `:module`, `:error_handler`, `:key`
 
     If a token is found but is invalid, the error handler will be called with
-    `auth_error(conn, {:invalid_token, reason}, opts)`
+    `auth_error(conn, {:invalid_token, reason})`
 
     Once a token has been found it will be decoded, the token and claims will be put onto the connection.
 
@@ -147,7 +147,7 @@ if Code.ensure_loaded?(Plug) do
     defp response_error(conn, reason, opts) do
       conn
       |> Pipeline.fetch_error_handler!(opts)
-      |> apply(:auth_error, [conn, {:unauthenticated, reason}, opts])
+      |> apply(:auth_error, [conn, {:unauthenticated, reason}])
       |> halt()
     end
 
