@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "1.1.0"
+  @version "1.1.1"
 
   def project do
     [

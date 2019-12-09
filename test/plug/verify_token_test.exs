@@ -145,6 +145,25 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
       assert conn.status == 401
     end
 
+    test "will return 400 if secret is nil when decode_and_verify", ctx do
+      opts = VerifyToken.init()
+      opts = Keyword.put(opts, :main_secret, nil)
+      opts = Keyword.put(opts, :secondary_secret, nil)
+
+      secret = ctx.token_config[:main_secret]
+      {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
+
+      conn =
+        ctx.conn
+        |> put_req_header("authorization", "Bearer #{token}")
+        |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: BtrzAuth.ErrorHandler])
+
+      assert conn.status == 400
+      resp_body = Jason.decode!(conn.resp_body)
+      assert resp_body["code"] == "SECRET_NOT_FOUND"
+      assert resp_body["status"] == 400
+    end
+
     test "will be authenticated with user token and premium claim",
          ctx do
       valid_claims = %{webhooks: true, loyalty: false, id: @resource["id"]}
