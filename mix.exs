@@ -67,7 +67,8 @@ defmodule BtrzAuth.MixProject do
         BtrzAuth.Plug.VerifyPremium,
         BtrzAuth.Plug.VerifyToken,
         BtrzAuth.Plug.VerifyProviders,
-        BtrzAuth.Plug.AddPremiumFromProviders
+        BtrzAuth.Plug.AddPremiumFromProviders,
+        BtrzAuth.Plug.VerifyAudiences
       ],
       Pipelines: [
         BtrzAuth.Pipeline.ApiKeySecured,

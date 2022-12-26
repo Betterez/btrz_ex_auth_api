@@ -128,6 +128,7 @@ if Code.ensure_loaded?(Plug) do
 
         conn
         |> put_private(:user_id, claims["id"])
+        |> put_private(:user_aud, claims["aud"])
         |> put_private(:btrz_token_type, btrz_token_type)
         |> GPlug.put_current_token(token, key: key)
         |> GPlug.put_current_claims(claims, key: key)
