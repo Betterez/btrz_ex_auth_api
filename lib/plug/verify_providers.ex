@@ -55,8 +55,7 @@ defmodule BtrzAuth.Plug.VerifyProviders do
     conn = fetch_query_params(conn)
 
     (conn.query_params["providerIds"] || conn.query_params["provider_ids"] ||
-       conn.query_params["providerId"] || conn.query_params["provider_id"] ||
-       "")
+       conn.query_params["providerId"] || conn.query_params["provider_id"] || "")
     |> String.split(",", trim: true)
     |> Enum.map(&String.trim/1)
   end

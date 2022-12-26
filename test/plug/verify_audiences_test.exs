@@ -6,7 +6,6 @@ defmodule BtrzAuth.Plug.VerifyAudiencesTest do
 
   alias BtrzAuth.Plug.VerifyAudiences
 
-
   describe "init/1" do
     test "will fail if audiences are empty" do
       opts = [audiences: []]
@@ -28,7 +27,6 @@ defmodule BtrzAuth.Plug.VerifyAudiencesTest do
   end
 
   describe "call/2" do
-
     setup do
       conn =
         :get
@@ -38,7 +36,8 @@ defmodule BtrzAuth.Plug.VerifyAudiencesTest do
       {:ok, %{conn: conn}}
     end
 
-    test "will not pass if the token was created with an valid audience but not the audience defined in the plug config", ctx do
+    test "will not pass if the token was created with an valid audience but not the audience defined in the plug config",
+         ctx do
       audiences = [audiences: [:BETTEREZ_APP]]
       opts = VerifyAudiences.init(audiences)
 
@@ -74,5 +73,4 @@ defmodule BtrzAuth.Plug.VerifyAudiencesTest do
       refute conn.status == 401
     end
   end
-
 end
