@@ -2,7 +2,7 @@ defmodule BtrzAuth.MixProject do
   use Mix.Project
 
   @github_url "https://github.com/Betterez/btrz_ex_auth_api"
-  @version "1.2.0"
+  @version "1.2.1"
 
   def project do
     [
@@ -12,7 +12,7 @@ defmodule BtrzAuth.MixProject do
       description: "Elixir package for authentication handling using Plug and Guardian (JWT)",
       source_url: @github_url,
       homepage_url: @github_url,
-      elixir: "~> 1.5",
+      elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       docs: docs(),
@@ -34,9 +34,9 @@ defmodule BtrzAuth.MixProject do
   defp deps do
     [
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:plug, "~> 1.4"},
-      {:guardian, "~> 1.0"},
-      {:excoveralls, "~> 0.8", only: :test},
+      {:plug, "~> 1.15"},
+      {:guardian, "~> 2.3.2"},
+      {:excoveralls, "~> 0.18", only: :test},
       {:httpoison, "~> 1.0"},
       {:jason, "~> 1.1"},
       {:junit_formatter, "~> 2.1", only: :test}
