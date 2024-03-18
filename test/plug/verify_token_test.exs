@@ -153,14 +153,12 @@ defmodule BtrzAuth.Plug.VerifyTokenTest do
 
       secret = ctx.token_config[:main_secret]
       {:ok, token, _claims} = __MODULE__.Impl.encode_and_sign(@resource, %{}, secret: secret)
-      IO.inspect(token)
 
       conn =
         ctx.conn
         |> put_req_header("authorization", "Bearer #{token}")
         |> VerifyToken.call(opts ++ [module: ctx.impl, error_handler: BtrzAuth.ErrorHandler])
 
-      IO.inspect(opts++[module: ctx.impl, error_handler: BtrzAuth.ErrorHandler])
       assert conn.status == 400
       resp_body = Jason.decode!(conn.resp_body)
       assert resp_body["code"] == "SECRET_NOT_FOUND"
