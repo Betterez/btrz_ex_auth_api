@@ -86,9 +86,7 @@ if Code.ensure_loaded?(Plug) do
 
               {:error, error} ->
                 Logger.error(
-                  "account not found for the provided api_key: #{api_key}, reason: #{
-                    inspect(error)
-                  }"
+                  "account not found for the provided api_key: #{api_key}, reason: #{inspect(error)}"
                 )
 
                 respond({{:error, :account_not_found}, allow_blank, conn, opts})
