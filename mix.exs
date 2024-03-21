@@ -33,7 +33,7 @@ defmodule BtrzAuth.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
       {:plug, "~> 1.15"},
       {:guardian, "~> 2.3.2"},
       {:excoveralls, "~> 0.18", only: :test},
