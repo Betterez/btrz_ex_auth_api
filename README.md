@@ -45,6 +45,33 @@ It depends on `BtrzAuth.Plug.VerifyApiKey`, looks for a token in the `Authorizat
 Looks for and validates that the passed `keys` features are present in the account data under `conn.private.account["premium"]`
 saved by `BtrzAuth.Plug.VerifyApiKey` (the order of the plugs is very important!)
 
+#### `BtrzAuth.Plug.VerifyBackofficeUser`
+
+It depends on `BtrzAuth.Plug.VerifyToken`. Lets a request through only when its token was issued to one of the account's back-office users, or when it is an internal service token (pass `allow_internal: false` to refuse those).
+Customer tokens (audience `customer`, or carrying a `customerNumber`) are refused, as are user tokens without a user id. The user id is taken from the token's `id` claim, or its `_id` claim (application tokens), and stored in `conn.private[:user_id]`.
+Refused requests get a 401 with `%{"error" => "unauthorized", "reason" => "backoffice_user_required"}`.
+
+Use it on routes that change what an account does, which a customer of the account must not reach:
+
+```elixir
+pipeline :backoffice_user do
+  plug BtrzAuth.Pipeline.TokenSecured
+  plug BtrzAuth.Plug.VerifyBackofficeUser
+end
+```
+
+#### `BtrzAuth.Plug.VerifyInternal`
+
+It depends on `BtrzAuth.Plug.VerifyToken`. Lets a request through only when its token is an internal service token. User, customer and application tokens, and the test environment's `"test-token"`, are refused with a 401 and `%{"error" => "unauthorized", "reason" => "internal_token_required"}`.
+Use it on routes that only other Betterez services call.
+
+```elixir
+pipeline :internal_only do
+  plug BtrzAuth.Pipeline.TokenSecured
+  plug BtrzAuth.Plug.VerifyInternal
+end
+```
+
 ## Pipelines
 
 ### BtrzAuth.Pipeline.ApiKeySecured

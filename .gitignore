@@ -9,3 +9,4 @@ erl_crash.dump
 # vscode files
 /.elixir_ls
 .vscode
+.idea
