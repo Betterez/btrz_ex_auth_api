@@ -1,18 +1,18 @@
 if Code.ensure_loaded?(Plug) do
   defmodule BtrzAuth.Plug.VerifyBackofficeUser do
     @moduledoc """
-    Lets a request through only when its token was issued to one of the account's back-office users, or, unless
-    `allow_internal: false`, when it is an internal service token.
+    Lets a request through only when its token was issued to one of the account's back-office users for an allowed
+    audience, or, unless `allow_internal: false`, when it is an internal service token.
 
     It depends on `BtrzAuth.Plug.VerifyToken` (or `BtrzAuth.Pipeline.TokenSecured`), which must run first.
 
-    * Customer tokens are refused: tokens with the audience "customer", and tokens that carry a customer (a
-      `customerNumber` claim) whatever their audience. They are issued to an account's customers, not to the
-      people who manage the account.
-    * Any other user token must name the user it was issued to, in its `id` claim or, as long user tokens and
-      application tokens carry it, its `_id` claim. That id is stored in `conn.private[:user_id]`, where
-      `BtrzAuth.Plug.VerifyToken` stores the `id` claim.
-    * Internal service tokens carry no user. They pass by default, leaving `conn.private[:user_id]` as it is.
+    * The token's audience must be one of `audiences`, which defaults to `[:BETTEREZ_APP]`. Any other audience is
+      refused, including ones added after this plug was written.
+    * The token must name the user it was issued to, in its `id` claim or, as long user tokens carry it, its `_id`
+      claim. That id is stored in `conn.private[:user_id]`, where `BtrzAuth.Plug.VerifyToken` stores the `id`
+      claim.
+    * Internal service tokens carry no user or audience. They pass by default, leaving `conn.private[:user_id]` as
+      it is.
 
     Refused requests are halted with a 401 and this body:
 
@@ -25,6 +25,8 @@ if Code.ensure_loaded?(Plug) do
 
     Options:
 
+    * `audiences` - the audiences allowed, from `BtrzAuth.Audiences.valid_audiences/0`. Defaults to
+      `[:BETTEREZ_APP]`.
     * `allow_internal` - whether internal service tokens pass. Defaults to `true`.
 
     ### Example
@@ -32,19 +34,28 @@ if Code.ensure_loaded?(Plug) do
     ```elixir
     pipeline :backoffice_user do
       plug BtrzAuth.Pipeline.TokenSecured
-      plug BtrzAuth.Plug.VerifyBackofficeUser
+      plug BtrzAuth.Plug.VerifyBackofficeUser, audiences: [:BETTEREZ_APP, :MOBILE_SCANNER]
     end
     ```
     """
     import Plug.Conn
 
-    require Logger
+    alias BtrzAuth.Audiences
 
-    @customer_audience "customer"
+    require Logger
 
     @spec init(Keyword.t()) :: Keyword.t()
     def init(opts \\ []) do
-      Keyword.put_new(opts, :allow_internal, true)
+      audiences = Keyword.get(opts, :audiences, [:BETTEREZ_APP])
+
+      if audiences == [] or not Enum.all?(audiences, &(&1 in Audiences.valid_audiences())) do
+        raise ArgumentError,
+              "audiences must be a non-empty list of #{inspect(Audiences.valid_audiences())}, got: #{inspect(audiences)}"
+      end
+
+      opts
+      |> Keyword.put(:audiences, audiences)
+      |> Keyword.put_new(:allow_internal, true)
     end
 
     @spec call(Plug.Conn.t(), Keyword.t()) :: Plug.Conn.t()
@@ -56,10 +67,10 @@ if Code.ensure_loaded?(Plug) do
       end
     end
 
-    def call(conn, _opts) do
+    def call(conn, opts) do
       claims = Guardian.Plug.current_claims(conn) || %{}
 
-      with false <- customer?(conn, claims),
+      with true <- allowed_audience?(conn, claims, opts[:audiences]),
            user_id when is_binary(user_id) and user_id != "" <- user_id(conn, claims) do
         put_private(conn, :user_id, user_id)
       else
@@ -67,9 +78,9 @@ if Code.ensure_loaded?(Plug) do
       end
     end
 
-    defp customer?(conn, claims) do
-      conn.private[:user_aud] == @customer_audience or claims["aud"] == @customer_audience or
-        Map.has_key?(claims, "customerNumber")
+    defp allowed_audience?(conn, claims, audiences) do
+      audience = conn.private[:user_aud] || claims["aud"]
+      Map.get(Audiences.valid_audiences_map(), audience) in audiences
     end
 
     defp user_id(conn, claims) do
