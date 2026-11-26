@@ -42,6 +42,14 @@ defmodule BtrzAuth.Plug.VerifyBackofficeUserTest do
       assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [:SOMETHING_NEW]) end
     end
 
+    test "raises when the customer audience is allowed" do
+      assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [:CUSTOMER]) end
+
+      assert_raise ArgumentError, fn ->
+        VerifyBackofficeUser.init(audiences: [:BETTEREZ_APP, :CUSTOMER])
+      end
+    end
+
     test "raises on an empty list of audiences" do
       assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: []) end
     end

@@ -48,7 +48,7 @@ saved by `BtrzAuth.Plug.VerifyApiKey` (the order of the plugs is very important!
 #### `BtrzAuth.Plug.VerifyBackofficeUser`
 
 It depends on `BtrzAuth.Plug.VerifyToken`. Lets a request through only when its token was issued to a back-office user for an allowed audience, or when it is an internal service token (pass `allow_internal: false` to refuse those).
-The audience must be one of `audiences` (from `BtrzAuth.Audiences`), which defaults to `[:BETTEREZ_APP]`; any other audience is refused. The token must also carry the user's id, in its `id` claim or its `_id` claim, which is stored in `conn.private[:user_id]`.
+The audience must be one of `audiences` (from `BtrzAuth.Audiences`, except `:CUSTOMER`, which raises), which defaults to `[:BETTEREZ_APP]`; any other audience is refused. The token must also carry the user's id, in its `id` claim or its `_id` claim, which is stored in `conn.private[:user_id]`.
 Refused requests get a 401 with `%{"error" => "unauthorized", "reason" => "backoffice_user_required"}`.
 
 ```elixir

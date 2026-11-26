@@ -25,8 +25,8 @@ if Code.ensure_loaded?(Plug) do
 
     Options:
 
-    * `audiences` - the audiences allowed, from `BtrzAuth.Audiences.valid_audiences/0`. Defaults to
-      `[:BETTEREZ_APP]`.
+    * `audiences` - the audiences allowed, from `BtrzAuth.Audiences.valid_audiences/0` except `:CUSTOMER`, which
+      raises. Defaults to `[:BETTEREZ_APP]`.
     * `allow_internal` - whether internal service tokens pass. Defaults to `true`.
 
     ### Example
@@ -44,13 +44,16 @@ if Code.ensure_loaded?(Plug) do
 
     require Logger
 
+    # Customer tokens are issued to an account's customers, never to its back-office users.
+    @allowed_audiences Audiences.valid_audiences() -- [:CUSTOMER]
+
     @spec init(Keyword.t()) :: Keyword.t()
     def init(opts \\ []) do
       audiences = Keyword.get(opts, :audiences, [:BETTEREZ_APP])
 
-      if audiences == [] or not Enum.all?(audiences, &(&1 in Audiences.valid_audiences())) do
+      if audiences == [] or not Enum.all?(audiences, &(&1 in @allowed_audiences)) do
         raise ArgumentError,
-              "audiences must be a non-empty list of #{inspect(Audiences.valid_audiences())}, got: #{inspect(audiences)}"
+              "audiences must be a non-empty list of #{inspect(@allowed_audiences)}, got: #{inspect(audiences)}"
       end
 
       opts
