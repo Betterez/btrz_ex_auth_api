@@ -53,6 +53,33 @@ defmodule BtrzAuth.Plug.VerifyBackofficeUserTest do
     test "raises on an empty list of audiences" do
       assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: []) end
     end
+
+    test "keeps an application name given as a string" do
+      opts = VerifyBackofficeUser.init(audiences: [:BETTEREZ_APP, "my-integration"])
+      assert opts[:audiences] == [:BETTEREZ_APP, "my-integration"]
+    end
+
+    test "raises when the customer audience is given as a string, in any case" do
+      for audience <- ["customer", "Customer", "CUSTOMER"] do
+        assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [audience]) end
+
+        assert_raise ArgumentError, fn ->
+          VerifyBackofficeUser.init(audiences: [:BETTEREZ_APP, audience])
+        end
+      end
+    end
+
+    test "raises on an empty application name or one with surrounding whitespace" do
+      for audience <- ["", " ", " my-integration", "my-integration ", " customer "] do
+        assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [audience]) end
+      end
+    end
+
+    test "raises on audiences that are neither atoms nor strings" do
+      assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [nil]) end
+      assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: [123]) end
+      assert_raise ArgumentError, fn -> VerifyBackofficeUser.init(audiences: "my-integration") end
+    end
   end
 
   describe "call/2 with the private data VerifyToken stores" do
@@ -120,6 +147,110 @@ defmodule BtrzAuth.Plug.VerifyBackofficeUserTest do
                    "_id" => @user_id,
                    "aud" => "my-integration"
                  })
+               )
+      end)
+    end
+
+    test "lets an application's audience through when its name is allowed" do
+      conn =
+        call(
+          :user,
+          %{user_id: nil, user_aud: "my-integration"},
+          %{"_id" => @user_id, "aud" => "my-integration"},
+          audiences: [:BETTEREZ_APP, "my-integration"]
+        )
+
+      refute conn.halted
+      assert conn.private.user_id == @user_id
+    end
+
+    test "still lets the named audiences through when an application's name is allowed too" do
+      conn =
+        call(
+          :user,
+          %{user_id: @user_id, user_aud: "betterez-app"},
+          %{"id" => @user_id, "aud" => "betterez-app"},
+          audiences: [:BETTEREZ_APP, "my-integration"]
+        )
+
+      refute conn.halted
+    end
+
+    test "lets a named audience through when it is given as its string" do
+      conn =
+        call(
+          :user,
+          %{user_id: @user_id, user_aud: "betterez-app"},
+          %{"id" => @user_id, "aud" => "betterez-app"},
+          audiences: ["betterez-app"]
+        )
+
+      refute conn.halted
+    end
+
+    test "compares an application's name exactly" do
+      for audience <- ["My-Integration", "my-integration ", "my-integration-2", "my"] do
+        capture_log(fn ->
+          assert refused?(
+                   call(
+                     :user,
+                     %{user_id: nil, user_aud: audience},
+                     %{"_id" => @user_id, "aud" => audience},
+                     audiences: [:BETTEREZ_APP, "my-integration"]
+                   )
+                 )
+        end)
+      end
+    end
+
+    test "refuses another application's audience" do
+      capture_log(fn ->
+        assert refused?(
+                 call(
+                   :user,
+                   %{user_id: nil, user_aud: "other-integration"},
+                   %{"_id" => @user_id, "aud" => "other-integration"},
+                   audiences: [:BETTEREZ_APP, "my-integration"]
+                 )
+               )
+      end)
+    end
+
+    test "refuses an application's audience when the token names no user" do
+      capture_log(fn ->
+        assert refused?(
+                 call(
+                   :user,
+                   %{user_id: nil, user_aud: "my-integration"},
+                   %{"aud" => "my-integration"},
+                   audiences: ["my-integration"]
+                 )
+               )
+      end)
+    end
+
+    test "refuses a customer token whose audience differs from the customer audience only in case" do
+      capture_log(fn ->
+        assert refused?(
+                 call(
+                   :user,
+                   %{user_id: @customer_id, user_aud: "Customer"},
+                   %{"id" => @customer_id, "aud" => "Customer"},
+                   audiences: [:BETTEREZ_APP, "my-integration"]
+                 )
+               )
+      end)
+    end
+
+    test "refuses a customer token when application names are allowed" do
+      capture_log(fn ->
+        assert refused?(
+                 call(
+                   :user,
+                   %{user_id: nil, user_aud: "customer"},
+                   %{"_id" => @customer_id, "aud" => "customer"},
+                   audiences: [:BETTEREZ_APP, "my-integration"]
+                 )
                )
       end)
     end
@@ -272,6 +403,32 @@ defmodule BtrzAuth.Plug.VerifyBackofficeUserTest do
 
       capture_log(fn ->
         conn = verify(ctx, token)
+        assert conn.private.btrz_token_type == :user
+        assert refused?(conn)
+      end)
+    end
+
+    test "lets an application token through when its name is allowed", ctx do
+      token =
+        user_token(ctx, %{"_id" => @user_id}, %{"_id" => @user_id, "aud" => "my-integration"})
+
+      conn = verify(ctx, token, audiences: [:BETTEREZ_APP, "my-integration"])
+
+      refute conn.halted
+      assert conn.private.btrz_token_type == :user
+      assert conn.private.user_id == @user_id
+    end
+
+    test "refuses a customer token when an application's name is allowed", ctx do
+      token =
+        user_token(ctx, %{"_id" => @customer_id}, %{
+          "_id" => @customer_id,
+          "customerNumber" => "123-456-789",
+          "aud" => "customer"
+        })
+
+      capture_log(fn ->
+        conn = verify(ctx, token, audiences: [:BETTEREZ_APP, "my-integration"])
         assert conn.private.btrz_token_type == :user
         assert refused?(conn)
       end)
